@@ -1,5 +1,10 @@
 # lexdrift
 
+[![quality](https://github.com/mathbeal/lexdrift/actions/workflows/quality.yml/badge.svg)](https://github.com/mathbeal/lexdrift/actions/workflows/quality.yml)
+[![python](https://img.shields.io/badge/python-3.9%20%E2%80%93%203.14-blue)](https://github.com/mathbeal/lexdrift)
+[![coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](https://github.com/mathbeal/lexdrift)
+[![licence](https://img.shields.io/badge/licence-MIT-blue)](https://github.com/mathbeal/lexdrift/blob/main/LICENSE)
+
 Read the lexicon of a Python repository — verbs, nouns, synonyms — setting aside the vocabulary imposed by third-party libraries.
 
 Zero runtime dependencies. Python 3.9 to 3.14.
@@ -173,6 +178,13 @@ uv run ruff check lexdrift tests
 uv run ruff format --check lexdrift tests
 uv run mypy
 uv run pytest --cov
+```
+
+Hooks run the same checks before each commit, plus `typos` and `zizmor`, which
+audits the workflows:
+
+```bash
+uvx pre-commit install
 ```
 
 To run the suite against another interpreter, uv fetches it if needed:

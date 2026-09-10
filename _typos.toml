@@ -1,0 +1,3 @@
+[files]
+# The synonym tables carry French verbs on purpose.
+extend-exclude = ["lexdrift/synonyms.json", "lexdrift/abbreviations.json", "uv.lock"]

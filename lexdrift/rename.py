@@ -69,7 +69,7 @@ class Report:
 
 
 def _as_written(node: ast.Attribute) -> str:
-    """Rend ``objet.attribut`` tel qu'il se lit."""
+    """Render ``object.attribute`` the way it reads."""
     owner = getattr(node.value, "id", "…")
     return f"{owner}.{node.attr}"
 
