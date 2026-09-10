@@ -28,8 +28,8 @@ jobs:
       - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           enable-cache: true
-      - run: uv run --all-extras ruff check lexdrift tests
-      - run: uv run --all-extras ruff format --check lexdrift tests
+      - run: uv run ruff check lexdrift tests
+      - run: uv run ruff format --check lexdrift tests
 
   hygiene:
     name: typos and workflow audit
@@ -52,7 +52,7 @@ jobs:
       - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           enable-cache: true
-      - run: uv run --all-extras mypy
+      - run: uv run mypy
 
   tests:
     name: pytest ${{ matrix.python-version }}
@@ -69,7 +69,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
-      - run: uv run --all-extras pytest --cov
+      - run: uv run pytest --cov
 
   auto:
     name: lexdrift on itself

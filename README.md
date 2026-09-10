@@ -211,7 +211,7 @@ lexdrift dump . --format tsv
 The project is managed with [uv](https://docs.astral.sh/uv/). `uv.lock` is committed, so every environment resolves identically.
 
 ```bash
-uv sync --all-extras
+uv sync
 uv run ruff check lexdrift tests
 uv run ruff format --check lexdrift tests
 uv run mypy
@@ -228,8 +228,8 @@ uvx pre-commit install
 To run the suite against another interpreter, uv fetches it if needed:
 
 ```bash
-uv run --all-extras --python 3.9 pytest
-uv run --all-extras --python 3.14 pytest
+uv run --python 3.9 pytest
+uv run --python 3.14 pytest
 ```
 
 Without uv, `pip install -e ".[dev]"` works too.

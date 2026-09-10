@@ -4,7 +4,7 @@ default:
 
 # Install the project and its development tools.
 setup:
-    uv sync --all-extras
+    uv sync
 
 # Every gate CI runs, in the same order.
 check: lint types test self lock

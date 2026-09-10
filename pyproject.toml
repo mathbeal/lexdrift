@@ -32,7 +32,15 @@ dependencies = []
 Source = "https://github.com/mathbeal/lexdrift"
 Issues = "https://github.com/mathbeal/lexdrift/issues"
 
+# Kept for `pip install -e ".[dev]"`. It must stay identical to the
+# dependency-group below, and a test enforces that.
 [project.optional-dependencies]
+dev = ["pytest>=7", "pytest-cov>=4", "ruff>=0.6", "mypy>=1.10"]
+
+# uv installs this group by default, so `uv run pytest` needs no flag. Passing
+# --all-extras on some commands and not others makes uv re-sync the
+# environment between them, which uninstalls the project mid-run.
+[dependency-groups]
 dev = ["pytest>=7", "pytest-cov>=4", "ruff>=0.6", "mypy>=1.10"]
 
 [project.scripts]

@@ -51,7 +51,7 @@ that changed. Hold the same standard by hand.
 ## Before opening a pull request
 
 ```bash
-uv sync --all-extras
+uv sync
 uv run ruff check lexdrift tests
 uv run ruff format --check lexdrift tests
 uv run mypy

@@ -1,17 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import sys
+from pathlib import Path
 
 import pytest
 
 from lexdrift.collector import collect_source
 from lexdrift.project import discover
 from lexdrift.rules import measure
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    import pytest
 
 
 def rules_fired(source: object) -> None:
@@ -98,3 +94,17 @@ def test_dump_prints_the_reasons(
     )
     main(["dump", str(tmp_path)])
     assert "language special method" in capsys.readouterr().out
+
+
+@pytest.mark.skipif(
+    sys.version_info < (3, 11), reason="tomllib landed in 3.11; CI covers it there"
+)
+def test_the_two_declarations_of_dev_dependencies_agree() -> None:
+    """Pip reads the extra, uv reads the group. They must not drift."""
+    import tomllib
+
+    root = Path(__file__).resolve().parent.parent
+    data = tomllib.loads(root.joinpath("pyproject.toml").read_text(encoding="utf-8"))
+    extra = data["project"]["optional-dependencies"]["dev"]
+    group = data["dependency-groups"]["dev"]
+    assert extra == group

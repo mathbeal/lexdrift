@@ -5,7 +5,7 @@
 ```bash
 git clone https://github.com/mathbeal/lexdrift
 cd lexdrift
-uv sync --all-extras
+uv sync
 just check          # or run the commands in AGENTS.md by hand
 ```
 
