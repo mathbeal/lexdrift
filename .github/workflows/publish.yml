@@ -1,0 +1,49 @@
+name: publish
+
+on:
+  release:
+    types: [published]
+
+env:
+  UV_FROZEN: "1"
+
+jobs:
+  build:
+    name: build and check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: the tag must match the package version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(uv run --no-project python -c 'import re,pathlib; print(re.search(r"__version__ = \"([^\"]+)\"", pathlib.Path("lexdrift/__init__.py").read_text()).group(1))')"
+          echo "tag=$tag  version=$version"
+          test "$tag" = "$version"
+
+      - run: uv build
+      - run: uv run --no-project --with twine twine check dist/*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+
+  publish:
+    name: publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/lexdrift
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

@@ -24,12 +24,16 @@ On [La Suite — Docs](https://github.com/suitenumerique/docs), a Django and DRF
 ## Install
 
 ```bash
+pip install lexdrift        # or: uv tool install lexdrift
+```
+
+From source:
+
+```bash
 git clone https://github.com/mathbeal/lexdrift
 cd lexdrift
 uv sync            # or: pip install -e .
 ```
-
-Not published on PyPI yet.
 
 The test suite, `mypy --strict` and `ruff` run on CPython 3.9, 3.10, 3.11, 3.12, 3.13 and 3.14 in CI.
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lexdrift"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Read the lexicon of a Python repository: verbs, nouns, synonyms — setting aside the vocabulary imposed by third-party libraries."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -40,6 +40,9 @@ lexdrift = "lexdrift.cli:main"
 
 [tool.setuptools]
 packages = ["lexdrift"]
+
+[tool.setuptools.dynamic]
+version = { attr = "lexdrift.__version__" }
 
 [tool.setuptools.package-data]
 lexdrift = ["*.json"]

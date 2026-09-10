@@ -3,12 +3,12 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
+import pytest
+
 from lexdrift.cli import main
 
 if TYPE_CHECKING:
     from pathlib import Path
-
-    import pytest
 
 DRIFTING = "def get_user():\n    pass\n\ndef fetch_account():\n    pass\n"
 CLEAN = "def get_user():\n    pass\n\ndef get_account():\n    pass\n"
@@ -100,3 +100,12 @@ def test_rename_refuses_a_collision_and_exits_1(
     source = "def fetch_account():\n    pass\n\ndef get_account():\n    pass\n"
     root = make(tmp_path, source)
     assert main(["rename", "fetch_account", "get_account", root]) == 1
+
+
+def test_version_prints_the_package_version(capsys: pytest.CaptureFixture[str]) -> None:
+    from lexdrift import __version__
+
+    with pytest.raises(SystemExit) as exit_code:
+        main(["--version"])
+    assert exit_code.value.code == 0
+    assert __version__ in capsys.readouterr().out

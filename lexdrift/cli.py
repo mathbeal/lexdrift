@@ -18,6 +18,7 @@ import subprocess
 import sys
 from typing import TYPE_CHECKING, Any
 
+from . import __version__
 from .drift import compare
 from .project import findings, glossary, inspect
 from .rename import rename
@@ -31,7 +32,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("lexdrift")
 
-COMMANDS = ("check", "dump", "rename", "-h", "--help")
+COMMANDS = ("check", "dump", "rename", "-h", "--help", "--version")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -49,6 +50,7 @@ def build_parser() -> argparse.ArgumentParser:
             "everywhere."
         ),
     )
+    parser.add_argument("--version", action="version", version=f"lexdrift {__version__}")
     sub = parser.add_subparsers(dest="command")
 
     check = sub.add_parser("check", help="verdict: has the lexicon drifted?")
