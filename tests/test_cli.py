@@ -109,3 +109,49 @@ def test_version_prints_the_package_version(capsys: pytest.CaptureFixture[str]) 
         main(["--version"])
     assert exit_code.value.code == 0
     assert __version__ in capsys.readouterr().out
+
+
+def test_dump_most_common_narrows_every_format(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    main(["dump", "lexdrift", "--format", "tsv", "--most-common", "3"])
+    lines = capsys.readouterr().out.strip().splitlines()
+    assert len(lines) == 6  # 3 verbs and 3 nouns
+
+
+def test_dump_max_count_one_lists_the_words_used_once(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    main(["dump", "lexdrift", "--format", "tsv", "--max-count", "1"])
+    counts = {
+        line.split("\t")[0] for line in capsys.readouterr().out.strip().splitlines()
+    }
+    assert counts == {"1"}
+
+
+def test_dump_kind_verbs_prints_no_noun(capsys: pytest.CaptureFixture[str]) -> None:
+    main(["dump", "lexdrift", "--kind", "verbs"])
+    out = capsys.readouterr().out
+    assert "verbs, by family" in out
+    assert "\n  \n" not in out
+
+
+def test_dump_unnarrowed_says_how_many_nouns_it_shows(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    main(["dump", "lexdrift"])
+    assert "most used nouns, 20 shown" in capsys.readouterr().out
+
+
+def test_dump_narrowed_shows_every_noun_it_kept(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    main(["dump", "lexdrift", "--least-common", "2"])
+    out = capsys.readouterr().out
+    assert "\nnouns\n" in out
+    assert "shown" not in out
+
+
+def test_dump_kind_nouns_prints_no_family(capsys: pytest.CaptureFixture[str]) -> None:
+    main(["dump", "lexdrift", "--kind", "nouns"])
+    assert "verbs, by family" not in capsys.readouterr().out

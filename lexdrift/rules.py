@@ -24,6 +24,7 @@ if TYPE_CHECKING:
 
 _TABLE_PATH = os.path.join(os.path.dirname(__file__), "synonyms.json")
 _ABBREVIATION_PATH = os.path.join(os.path.dirname(__file__), "abbreviations.json")
+_COMPOUND_PATH = os.path.join(os.path.dirname(__file__), "compounds.json")
 ANNOUNCES_A_RETURN = "return"
 _VOWELS = set("aeiouy")
 AMBIGUOUS = 2  # past one verb, the family is named several ways
@@ -74,6 +75,20 @@ def load_abbreviations(path: str = _ABBREVIATION_PATH) -> dict[str, list[str]]:
     with open(path, encoding="utf-8") as handle:
         table: dict[str, list[str]] = json.load(handle)
     return table
+
+
+def load_compounds(path: str = _COMPOUND_PATH) -> list[str]:
+    """Load the declared multi-word terms.
+
+    Args:
+        path: Where to read the list from.
+
+    Returns:
+        Terms, each written as a space-separated phrase.
+    """
+    with open(path, encoding="utf-8") as handle:
+        terms: list[str] = json.load(handle)
+    return terms
 
 
 def _verb_index(families: Mapping[str, Iterable[str]]) -> dict[str, str]:

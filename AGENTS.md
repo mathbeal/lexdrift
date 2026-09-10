@@ -13,8 +13,9 @@ This is not a style preference. An agent that meets `get_user` in one file and
 badly. The rule is enforced, not suggested: `lexdrift check lexdrift` runs in
 CI and fails on a verb introduced for an idea already named.
 
-Before adding a name, run `lexdrift dump lexdrift` and reuse a word already in
-the lexicon.
+Before adding a name, run `lexdrift dump lexdrift --max-count 1` to see the
+words this repository uses exactly once, then `lexdrift dump lexdrift` and
+reuse a word already in the lexicon.
 
 ## What the code is
 
@@ -22,7 +23,7 @@ A linter that reads the lexicon of a Python repository. Three commands, three
 contracts:
 
 - `check` returns a verdict on drift — exit 0 or 1
-- `dump` measures and never judges — always exit 0
+- `dump` measures and never judges — always exit 0; `--most-common`, `--least-common`, `--min-count`, `--max-count` and `--kind` narrow it before rendering, so every format shows the same words
 - `rename` renames what it can prove and lists what it cannot
 
 Keep these contracts separate. Findings, glossaries and reports go to stdout,

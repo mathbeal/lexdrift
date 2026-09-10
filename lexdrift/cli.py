@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING, Any
 
 from . import __version__
 from .drift import compare
-from .project import findings, glossary, inspect
+from .project import Narrowing, filter_lexicon, findings, glossary, inspect
 from .rename import rename
 from .report import as_json, as_sarif, as_text
 from .rules import load_families
@@ -33,6 +33,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger("lexdrift")
 
 COMMANDS = ("check", "dump", "rename", "-h", "--help", "--version")
+SHOWN = 20  # nouns printed by the plain report when nothing was narrowed
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -69,6 +70,29 @@ def build_parser() -> argparse.ArgumentParser:
         default="text",
         help="tsv: one word per line, by decreasing frequency",
     )
+    dump.add_argument(
+        "--kind",
+        choices=("all", "verbs", "nouns"),
+        default="all",
+        help="which half of the lexicon to print",
+    )
+    dump.add_argument(
+        "--min-count", type=int, metavar="K", help="drop words used fewer than K times"
+    )
+    dump.add_argument(
+        "--max-count",
+        type=int,
+        metavar="K",
+        help="drop words used more than K times; --max-count 1 lists the words "
+        "used once, where drift hides",
+    )
+    ends = dump.add_mutually_exclusive_group()
+    ends.add_argument(
+        "--most-common", type=int, metavar="N", help="keep the N most used, per kind"
+    )
+    ends.add_argument(
+        "--least-common", type=int, metavar="N", help="keep the N least used, per kind"
+    )
 
     move = sub.add_parser("rename", help="rename what can be proven")
     move.add_argument("old")
@@ -102,7 +126,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     project = inspect(options.path)
     if options.command == "dump":
-        return _dump(project, options.format)
+        return _dump(project, options)
     return _check(project, options)
 
 
@@ -194,25 +218,33 @@ def _check(project: Project, options: argparse.Namespace) -> int:
     return 1 if found else 0
 
 
-def _dump(project: Project, shape: str) -> int:
+def _dump(project: Project, options: argparse.Namespace) -> int:
     """Dump the lexicon in the requested shape.
 
-    Judges nothing, always returns 0.
+    Judges nothing, always returns 0. Narrowing applies before rendering, so
+    every format shows the same words.
 
     Args:
         project: The repository to measure.
-        shape: One of ``text``, ``json`` or ``tsv``.
+        options: The parsed command line.
 
     Returns:
         Always 0.
     """
-    lexicon = glossary(project)
-    if shape == "json":
+    narrowing = Narrowing(
+        most_common=options.most_common,
+        least_common=options.least_common,
+        min_count=options.min_count,
+        max_count=options.max_count,
+        kind=options.kind,
+    )
+    lexicon = filter_lexicon(glossary(project), narrowing)
+    if options.format == "json":
         print(json.dumps(lexicon, ensure_ascii=False, indent=2, sort_keys=True))
-    elif shape == "tsv":
+    elif options.format == "tsv":
         print(as_tsv(lexicon))
     else:
-        _print_report(lexicon)
+        _print_report(lexicon, limit=None if narrowing.narrows else SHOWN)
         _print_observations(project)
     return 0
 
@@ -235,26 +267,31 @@ def as_tsv(lexicon: dict[str, Any]) -> str:
     return "\n".join("\t".join(str(cell) for cell in row).rstrip("\t") for row in rows)
 
 
-def _print_report(lexicon: dict[str, Any]) -> None:
+def _print_report(lexicon: dict[str, Any], limit: int | None = None) -> None:
     """Print the lexicon in plain words.
 
     Args:
         lexicon: The glossary to print.
+        limit: How many nouns to show, or None to show every one kept.
     """
     print(f"{lexicon['own']} names chosen, {lexicon['imposed']} imposed")
     for reason, count in sorted(
         lexicon["imposed_by_reason"].items(), key=lambda kv: (-kv[1], kv[0])
     ):
         print(f"  {count:>6}  {reason}")
-    print("\nverbs, by family")
-    for family, verbs in sorted(lexicon["families"].items()):
-        ordered = sorted(verbs.items(), key=lambda kv: (-kv[1], kv[0]))
-        rendered = ", ".join(f"{v} ({n})" for v, n in ordered)
-        marker = "  <- several" if len(verbs) > 1 else ""
-        print(f"  {family:<10} {rendered}{marker}")
-    print("\nmost used nouns")
-    top = sorted(lexicon["nouns"].items(), key=lambda kv: (-kv[1], kv[0]))[:20]
-    print("  " + ", ".join(f"{w} ({n})" for w, n in top))
+    if lexicon["families"]:
+        print("\nverbs, by family")
+        for family, verbs in sorted(lexicon["families"].items()):
+            ordered = sorted(verbs.items(), key=lambda kv: (-kv[1], kv[0]))
+            rendered = ", ".join(f"{v} ({n})" for v, n in ordered)
+            marker = "  <- several" if len(verbs) > 1 else ""
+            print(f"  {family:<10} {rendered}{marker}")
+    if lexicon["nouns"]:
+        by_use = sorted(lexicon["nouns"].items(), key=lambda kv: (-kv[1], kv[0]))
+        shown = by_use if limit is None else by_use[:limit]
+        heading = "nouns" if limit is None else f"most used nouns, {limit} shown"
+        print(f"\n{heading}")
+        print("  " + ", ".join(f"{w} ({n})" for w, n in shown))
 
 
 def _print_observations(project: Project) -> None:

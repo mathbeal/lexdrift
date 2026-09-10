@@ -8,8 +8,8 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .collector import Module, collect_source
-from .lexicon import split_chosen_words
-from .rules import Finding, load_families, measure
+from .lexicon import chosen_nouns, split_chosen_words
+from .rules import Finding, load_compounds, load_families, measure
 from .vocabulary import classify
 
 SKIPPED = {
@@ -156,6 +156,7 @@ def glossary(project: Project) -> dict[str, Any]:
     verbs: Counter[str] = Counter()
     nouns: Counter[str] = Counter()
     index = {verb: family for family, group in load_families().items() for verb in group}
+    compounds = load_compounds()
 
     for definition in result.own:
         words = split_chosen_words(definition.name)
@@ -163,12 +164,12 @@ def glossary(project: Project) -> dict[str, Any]:
             continue
         head, tail = words[0], words[1:]
         if definition.kind == "class":
-            nouns.update(words)
+            nouns.update(chosen_nouns(words, compounds))
         elif head in index:
             verbs[head] += 1
-            nouns.update(tail)
+            nouns.update(chosen_nouns(tail, compounds))
         else:
-            nouns.update(words)
+            nouns.update(chosen_nouns(words, compounds))
 
     return {
         "verbs": dict(verbs),
@@ -177,6 +178,95 @@ def glossary(project: Project) -> dict[str, Any]:
         "own": len(result.own),
         "imposed": len(result.imposed),
         "imposed_by_reason": dict(Counter(r for _, r in result.imposed)),
+    }
+
+
+@dataclass(frozen=True)
+class Narrowing:
+    """How much of a lexicon to keep, and which half of it.
+
+    Attributes:
+        most_common: Keep only the N most used words of each kind.
+        least_common: Keep only the N least used words of each kind.
+        min_count: Drop words used fewer times than this.
+        max_count: Drop words used more times than this.
+        kind: ``all``, ``verbs`` or ``nouns``.
+    """
+
+    most_common: int | None = None
+    least_common: int | None = None
+    min_count: int | None = None
+    max_count: int | None = None
+    kind: str = "all"
+
+    def __post_init__(self) -> None:
+        """Refuse a request for both ends of one list.
+
+        Raises:
+            ValueError: When most_common and least_common are both given.
+        """
+        if self.most_common is not None and self.least_common is not None:
+            message = "most_common and least_common ask for opposite ends of one list"
+            raise ValueError(message)
+
+    @property
+    def narrows(self) -> bool:
+        """Whether anything at all was asked to be dropped."""
+        return self.kind != "all" or any(
+            value is not None
+            for value in (
+                self.most_common,
+                self.least_common,
+                self.min_count,
+                self.max_count,
+            )
+        )
+
+
+def filter_lexicon(
+    lexicon: dict[str, Any], narrowing: Narrowing | None = None
+) -> dict[str, Any]:
+    """Narrow a lexicon to the part worth reading.
+
+    The head of the list says what a repository is about. The tail is where
+    drift hides: a word used once is either a concept of its own or a synonym
+    that escaped. Corpus totals are never narrowed — they describe the whole.
+
+    Args:
+        lexicon: The glossary to narrow.
+        narrowing: What to keep. Defaults to keeping everything.
+
+    Returns:
+        The same lexicon, with its word lists narrowed and its families
+        recomputed from the verbs that survived.
+    """
+    asked = narrowing if narrowing is not None else Narrowing()
+    most_common, least_common = asked.most_common, asked.least_common
+    min_count, max_count = asked.min_count, asked.max_count
+
+    def narrow(counts: dict[str, int]) -> dict[str, int]:
+        kept = {
+            word: n
+            for word, n in counts.items()
+            if (min_count is None or n >= min_count)
+            and (max_count is None or n <= max_count)
+        }
+        if most_common is not None:
+            order = sorted(kept.items(), key=lambda kv: (-kv[1], kv[0]))[:most_common]
+            return dict(order)
+        if least_common is not None:
+            order = sorted(kept.items(), key=lambda kv: (kv[1], kv[0]))[:least_common]
+            return dict(order)
+        return kept
+
+    verbs = {} if asked.kind == "nouns" else narrow(lexicon["verbs"])
+    nouns = {} if asked.kind == "verbs" else narrow(lexicon["nouns"])
+    index = {verb: family for family, group in load_families().items() for verb in group}
+    return {
+        **lexicon,
+        "verbs": verbs,
+        "nouns": nouns,
+        "families": _families_used(Counter(verbs), index),
     }
 
 

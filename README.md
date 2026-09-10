@@ -125,7 +125,7 @@ verbs, by family
   create     create (7), build (5), generate (1)  <- several
   obtain     get (37)
 
-most used nouns
+most used nouns, 20 shown
   document (48), migration (32), serializer (25), user (16), access (15)
 
 observations
@@ -176,16 +176,28 @@ Two tables decide everything, and both ship with the package.
 
 `lexdrift/synonyms.json` groups verbs into families. `lexdrift/abbreviations.json` maps abbreviations to the words they stand for. Both are hand-written, readable, and meant to be edited. Families cover English and French, conjugated and infinitive, so that a French codebase is not reported as verbless.
 
-Rules are selected per run:
+**Narrowing the dump.** A lexicon obeys Zipf: a handful of words carry the repository, and a long tail carries everything else. Both ends are worth reading, for opposite reasons.
+
+```bash
+lexdrift dump . --most-common 20        # what this repository is about
+lexdrift dump . --max-count 1           # the words used once — where drift hides
+lexdrift dump . --least-common 30       # the same tail, by rank instead of count
+lexdrift dump . --kind verbs            # verbs only; --kind nouns for the other half
+lexdrift dump . --min-count 3           # drop the tail entirely
+```
+
+A word used exactly once is either a concept of its own or a synonym that escaped the families table. That list is short enough to read, and it is the one worth reading.
+
+Narrowing applies before rendering, so every format shows the same words:
 
 ```bash
 lexdrift check . --format sarif
-lexdrift dump . --format tsv
+lexdrift dump . --format tsv --max-count 1
 ```
 
 ## Design notes
 
-**Two passes, not one.** A synonym cannot be decided at file scope: `get_user` in one file and `fetch_user` in another are only a problem together. Codexique reads the whole repository to build the lexicon, then judges each definition against it. As a consequence, a `pre-commit` hook restricted to changed files will not see drift — run it over the whole tree.
+**Two passes, not one.** A synonym cannot be decided at file scope: `get_user` in one file and `fetch_user` in another are only a problem together. lexdrift reads the whole repository to build the lexicon, then judges each definition against it. As a consequence, a `pre-commit` hook restricted to changed files will not see drift — run it over the whole tree.
 
 **Not a Ruff plugin.** Ruff has no plugin system, and its file-by-file single-pass architecture is incompatible with a corpus-wide rule.
 
