@@ -25,7 +25,8 @@ On [La Suite — Docs](https://github.com/suitenumerique/docs), a Django and DRF
 
 ```bash
 git clone https://github.com/mathbeal/lexdrift
-cd lexdrift && pip install -e .
+cd lexdrift
+uv sync            # or: pip install -e .
 ```
 
 Not published on PyPI yet.
@@ -160,13 +161,24 @@ lexdrift dump . --format tsv
 
 ## Development
 
+The project is managed with [uv](https://docs.astral.sh/uv/). `uv.lock` is committed, so every environment resolves identically.
+
 ```bash
-pip install -e ".[dev]"
-ruff check lexdrift tests
-ruff format --check lexdrift tests
-mypy
-pytest --cov
+uv sync --all-extras
+uv run ruff check lexdrift tests
+uv run ruff format --check lexdrift tests
+uv run mypy
+uv run pytest --cov
 ```
+
+To run the suite against another interpreter, uv fetches it if needed:
+
+```bash
+uv run --all-extras --python 3.9 pytest
+uv run --all-extras --python 3.14 pytest
+```
+
+Without uv, `pip install -e ".[dev]"` works too.
 
 `ruff` runs with every rule enabled; the exceptions are listed in `pyproject.toml` with their reason. `mypy` runs in strict mode. Coverage is enforced at 100%, branches included.
 

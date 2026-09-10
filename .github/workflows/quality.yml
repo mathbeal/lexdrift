@@ -2,51 +2,62 @@ name: quality
 
 on: [push, pull_request]
 
+env:
+  UV_FROZEN: "1"
+
 jobs:
+  lock:
+    name: lockfile is in sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv lock --check
+
   lint:
     name: ruff
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.12"
-      - run: pip install -e ".[dev]"
-      - run: ruff check lexdrift tests
-      - run: ruff format --check lexdrift tests
+          enable-cache: true
+      - run: uv run --all-extras ruff check lexdrift tests
+      - run: uv run --all-extras ruff format --check lexdrift tests
 
   types:
     name: mypy --strict
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.12"
-      - run: pip install -e ".[dev]"
-      - run: mypy
+          enable-cache: true
+      - run: uv run --all-extras mypy
 
   tests:
     name: pytest ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev]"
-      - run: pytest --cov
+          enable-cache: true
+      - run: uv run --all-extras pytest --cov
 
   auto:
     name: lexdrift on itself
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.12"
-      - run: pip install -e .
-      - run: lexdrift check lexdrift
+          enable-cache: true
+      - run: uv run lexdrift check lexdrift
