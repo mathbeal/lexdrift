@@ -155,3 +155,41 @@ def test_dump_narrowed_shows_every_noun_it_kept(
 def test_dump_kind_nouns_prints_no_family(capsys: pytest.CaptureFixture[str]) -> None:
     main(["dump", "lexdrift", "--kind", "nouns"])
     assert "verbs, by family" not in capsys.readouterr().out
+
+
+def test_dump_says_how_to_declare_noun_families(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    main(["dump", "lexdrift"])
+    assert "[tool.lexdrift.nouns]" in capsys.readouterr().out
+
+
+def test_dump_lists_the_declared_noun_families(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    (tmp_path / "mod.py").write_text("def load_user():\n    pass\n", encoding="utf-8")
+    (tmp_path / "lexdrift.toml").write_text(
+        '[nouns]\nuser = ["customer"]\n', encoding="utf-8"
+    )
+    main(["dump", str(tmp_path)])
+    out = capsys.readouterr().out
+    assert "1 noun families declared" in out
+    assert "user       customer" in out
+
+
+def test_a_broken_declaration_is_reported_not_raised(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    (tmp_path / "mod.py").write_text("def load_user():\n    pass\n", encoding="utf-8")
+    (tmp_path / "lexdrift.toml").write_text("[nouns]\nuser = 3\n", encoding="utf-8")
+    assert main(["check", str(tmp_path)]) == 1
+    assert "list of words" in caplog.text
+
+
+def test_unreadable_toml_is_reported_not_raised(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    (tmp_path / "mod.py").write_text("def load_user():\n    pass\n", encoding="utf-8")
+    (tmp_path / "lexdrift.toml").write_text("[nouns\n", encoding="utf-8")
+    assert main(["check", str(tmp_path)]) == 1
+    assert caplog.text

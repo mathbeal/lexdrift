@@ -207,10 +207,13 @@ def _noun_drift(
     families: Mapping[str, Iterable[str]],
     accepted: Collection[str],
 ) -> list[Finding]:
-    """Report a new noun for an idea the project already named.
+    """Report a noun the project declared as a synonym of the one it chose.
 
-    With no baseline, the established noun is the most used one. Nothing is
-    reported unless the project declared the family.
+    A declared family is named after the term the project wants, so that
+    term is canonical and the rest of the list is what it does not want.
+    This differs from verbs, whose family names are labels the tool made
+    up rather than words anybody writes. Nouns already in the baseline are
+    left alone: an existing repository is not a fault.
 
     Args:
         definitions: The definitions to read.
@@ -219,39 +222,29 @@ def _noun_drift(
         accepted: The nouns the baseline already knew.
 
     Returns:
-        One finding per newcomer noun.
+        One finding per synonym in use.
     """
     if not families:
         return []
     index = {noun: family for family, group in families.items() for noun in group}
     compounds = load_compounds()
     seen: dict[str, dict[str, Definition]] = {}
-    counts: dict[str, int] = {}
     for definition in definitions:
         _, carried = split_name(definition, verbs, compounds)
         for noun in carried:
             if noun in index:
                 seen.setdefault(index[noun], {}).setdefault(noun, definition)
-                counts[noun] = counts.get(noun, 0) + 1
 
     findings: list[Finding] = []
     for family, occurrences in sorted(seen.items()):
-        known = {noun for noun in occurrences if noun in accepted}
-        if known:
-            newcomers = sorted(set(occurrences) - known)
-            reference = sorted(known)
-        else:
-            if len(occurrences) < AMBIGUOUS:
+        for noun in sorted(occurrences):
+            if noun == family or noun in accepted:
                 continue
-            ordered = sorted(occurrences, key=lambda n: (-counts[n], n))
-            newcomers, reference = sorted(ordered[1:]), ordered[:1]
-        for noun in newcomers:
             definition = occurrences[noun]
             findings.append(
                 Finding(
                     "D004",
-                    f'"{noun}" is new for the idea "{family}", '
-                    f"already named by {', '.join(reference)}",
+                    f'"{noun}" is new for the idea "{family}", already named by {family}',
                     definition.module,
                     definition.lineno,
                     definition.qualname,

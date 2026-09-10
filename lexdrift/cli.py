@@ -16,10 +16,12 @@ import json
 import logging
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from . import __version__
+from .config import ConfigError, load_config
 from .drift import compare
 from .project import Narrowing, filter_lexicon, findings, glossary, inspect
 from .rename import rename
@@ -50,6 +52,13 @@ def build_parser() -> argparse.ArgumentParser:
             "the vocabulary, 'dump' measures it, 'rename' renames what can be "
             "proven. Vocabulary imposed by third-party libraries is set aside "
             "everywhere."
+        ),
+        epilog=(
+            "Noun families are declared per project under [tool.lexdrift.nouns] "
+            "in pyproject.toml, or [nouns] in a lexdrift.toml which wins over it. "
+            "Declare nothing and nothing about nouns is ever reported: the tool "
+            "ships no opinion on what a noun means. Run 'lexdrift dump' to see "
+            "what is declared."
         ),
     )
     parser.add_argument("--version", action="version", version=f"lexdrift {__version__}")
@@ -126,9 +135,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _rename(options)
 
     project = inspect(options.path)
-    if options.command == "dump":
-        return _dump(project, options)
-    return _check(project, options)
+    try:
+        if options.command == "dump":
+            return _dump(project, options)
+        return _check(project, options)
+    except (ConfigError, tomllib.TOMLDecodeError) as error:
+        logger.error("%s", error)  # noqa: TRY400 - a bad declaration is not a crash
+        return 1
 
 
 def tree_is_dirty(root: str) -> bool | None:
@@ -246,6 +259,7 @@ def _dump(project: Project, options: argparse.Namespace) -> int:
         print(as_tsv(lexicon))
     else:
         _print_report(lexicon, limit=None if narrowing.narrows else SHOWN)
+        _print_noun_families(load_config(project.root))
         _print_observations(project)
     return 0
 
@@ -293,6 +307,28 @@ def _print_report(lexicon: dict[str, Any], limit: int | None = None) -> None:
         heading = "nouns" if limit is None else f"most used nouns, {limit} shown"
         print(f"\n{heading}")
         print("  " + ", ".join(f"{w} ({n})" for w, n in shown))
+
+
+def _print_noun_families(declared: dict[str, list[str]]) -> None:
+    """Say what the project declared about its nouns, or how to declare it.
+
+    Nouns are the half of a lexicon the tool has no opinion about, so a
+    reader of the report has no other way of learning that the setting
+    exists.
+
+    Args:
+        declared: Family name to the nouns that name it.
+    """
+    if not declared:
+        print(
+            "\nno noun families declared — nothing about nouns will be reported.\n"
+            "  declare them under [tool.lexdrift.nouns] in pyproject.toml"
+        )
+        return
+    print(f"\n{len(declared)} noun families declared")
+    for family, words in sorted(declared.items()):
+        synonyms = ", ".join(w for w in words if w != family)
+        print(f"  {family:<10} {synonyms}")
 
 
 def _print_observations(project: Project) -> None:

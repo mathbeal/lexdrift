@@ -16,6 +16,11 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
+
+class ConfigError(ValueError):
+    """What a project declared cannot be used, and here is why."""
+
+
 CONFIG_NAME = "lexdrift.toml"
 SHARED_NAME = "pyproject.toml"
 
@@ -77,19 +82,40 @@ def load_config(root: str) -> dict[str, list[str]]:
     Args:
         root: The directory the analysis started from.
 
+    The family name is itself a member: writing ``user = ["customer"]``
+    declares both, because the key is the obvious canonical word and
+    forgetting to repeat it would silently declare a family of one, which
+    no rule can ever report. Everything is lowercased, since identifiers
+    are read lowercased.
+
     Returns:
         Family name to the nouns that name it, empty when nothing is
         declared.
 
     Raises:
-        ValueError: When a family is not written as a list of words.
+        ConfigError: When a family is not written as a list of words, or
+            when one noun is claimed by two families.
     """
     families: dict[str, list[str]] = {}
-    for family, members in _load_settings(root).get("nouns", {}).items():
+    claimed: dict[str, str] = {}
+    for name, members in _load_settings(root).get("nouns", {}).items():
         if not isinstance(members, list) or not all(
             isinstance(word, str) for word in members
         ):
-            message = f'"{family}" must be declared as a list of words'
-            raise ValueError(message)
-        families[family] = list(members)
+            message = f'"{name}" must be declared as a list of words'
+            raise ConfigError(message)
+        family = name.lower()
+        words: list[str] = []
+        for word in [family, *(m.lower() for m in members)]:
+            if word in words:
+                continue
+            if word in claimed and claimed[word] != family:
+                message = (
+                    f'"{word}" is declared in two families, '
+                    f'"{claimed[word]}" and "{family}": it can only mean one'
+                )
+                raise ConfigError(message)
+            claimed[word] = family
+            words.append(word)
+        families[family] = words
     return families

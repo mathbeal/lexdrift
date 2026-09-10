@@ -72,7 +72,7 @@ def test_a_noun_already_in_the_baseline_is_not_drift(tmp_path: Path) -> None:
     assert [f for f in compare(project, baseline) if f.rule == "D004"] == []
 
 
-def test_without_a_baseline_the_most_used_noun_is_the_established_one(
+def test_the_family_name_is_the_term_the_project_chose(
     tmp_path: Path,
 ) -> None:
     source = (
@@ -158,3 +158,40 @@ def test_a_declared_family_applies_from_the_root_of_the_repository(
         "def load_user():\n    pass\n\ndef edit_account():\n    pass\n", encoding="utf-8"
     )
     assert "L006" in {f.rule for f in findings(inspect(package))}
+
+
+def test_the_family_name_is_itself_a_member(tmp_path: Path) -> None:
+    (tmp_path / "lexdrift.toml").write_text(
+        '[nouns]\nuser = ["customer"]\n', encoding="utf-8"
+    )
+    assert load_config(str(tmp_path)) == {"user": ["user", "customer"]}
+
+
+def test_a_name_already_listed_is_not_repeated(tmp_path: Path) -> None:
+    (tmp_path / "lexdrift.toml").write_text(
+        '[nouns]\nuser = ["user", "customer"]\n', encoding="utf-8"
+    )
+    assert load_config(str(tmp_path)) == {"user": ["user", "customer"]}
+
+
+def test_declarations_are_lowercased(tmp_path: Path) -> None:
+    (tmp_path / "lexdrift.toml").write_text(
+        '[nouns]\nUser = ["Customer"]\n', encoding="utf-8"
+    )
+    assert load_config(str(tmp_path)) == {"user": ["user", "customer"]}
+
+
+def test_a_noun_declared_in_two_families_is_refused(tmp_path: Path) -> None:
+    (tmp_path / "lexdrift.toml").write_text(
+        '[nouns]\nuser = ["customer"]\nbuyer = ["customer"]\n', encoding="utf-8"
+    )
+    with pytest.raises(ValueError, match="customer"):
+        load_config(str(tmp_path))
+
+
+def test_a_key_not_repeated_in_its_list_still_detects_drift(tmp_path: Path) -> None:
+    source = "def load_user():\n    pass\n\ndef save_customer():\n    pass\n"
+    project = project_with(tmp_path, source, config='[nouns]\nuser = ["customer"]\n')
+    found = [f for f in compare(project) if f.rule == "D004"]
+    assert len(found) == 1
+    assert '"customer" is new' in found[0].message

@@ -188,7 +188,13 @@ user = ["user", "account", "customer"]
 order = ["order", "purchase", "transaction"]
 ```
 
+**The family name is the word you chose.** `user` above is canonical; `account` and `customer` are what the project does not want, and `check` reports them. You do not have to repeat the key inside its own list — writing `user = ["customer"]` declares both. Everything is lowercased, and a noun claimed by two families is refused rather than silently assigned to one.
+
+This differs from verbs on purpose: a verb family is named `obtain` or `search`, labels the tool made up, so there the most used verb wins. A noun family is named by you, in your own vocabulary, so what you named it with is the term that stands.
+
 A dedicated `lexdrift.toml` works too, with the table written as plain `[nouns]`, and takes precedence when both exist. The search climbs from the directory being analysed to the root of the repository, so `lexdrift check src/backend` finds the settings declared beside `.git`.
+
+`lexdrift dump` prints what is declared, or how to declare it when nothing is. `lexdrift --help` says where the table lives. A declaration that cannot be used is reported on stderr with the reason, and the run exits 1 — never a traceback.
 
 Declared families are then held to the same standard as verbs: `dump` reports a family named several ways (**L006**), and `check` fails on a noun that is new to one (**D004**).
 
