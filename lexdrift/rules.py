@@ -15,7 +15,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from .lexicon import split_identifier
+from .lexicon import split_chosen_words
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Mapping
@@ -98,7 +98,7 @@ def _leading_verb(definition: Definition, verbs: Mapping[str, str]) -> str | Non
     Returns:
         The leading verb, or None when the first word is not one.
     """
-    words = split_identifier(definition.name)
+    words = split_chosen_words(definition.name)
     return words[0] if words and words[0] in verbs else None
 
 
@@ -303,7 +303,7 @@ def _abbreviations(
     sites: dict[str, Definition] = {}
     present: set[str] = set()
     for definition in definitions:
-        for word in split_identifier(definition.name):
+        for word in split_chosen_words(definition.name):
             present.add(word)
             sites.setdefault(word, definition)
 

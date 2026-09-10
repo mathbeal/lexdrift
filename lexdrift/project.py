@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .collector import Module, collect_source
-from .lexicon import split_identifier
+from .lexicon import split_chosen_words
 from .rules import Finding, load_families, measure
 from .vocabulary import classify
 
@@ -148,7 +148,9 @@ def glossary(project: Project) -> dict[str, Any]:
         project: The repository to read.
 
     Returns:
-        Verbs, nouns, families, and how many names were chosen or imposed.
+        Verbs, nouns, families, how many names were chosen or imposed, and
+        why the imposed ones were: a single share would conflate reasons
+        that have nothing to do with each other.
     """
     result = classify(project.modules, project.project_roots)
     verbs: Counter[str] = Counter()
@@ -156,7 +158,7 @@ def glossary(project: Project) -> dict[str, Any]:
     index = {verb: family for family, group in load_families().items() for verb in group}
 
     for definition in result.own:
-        words = split_identifier(definition.name)
+        words = split_chosen_words(definition.name)
         if not words:
             continue
         head, tail = words[0], words[1:]
@@ -174,6 +176,7 @@ def glossary(project: Project) -> dict[str, Any]:
         "families": _families_used(verbs, index),
         "own": len(result.own),
         "imposed": len(result.imposed),
+        "imposed_by_reason": dict(Counter(r for _, r in result.imposed)),
     }
 
 

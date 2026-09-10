@@ -242,6 +242,10 @@ def _print_report(lexicon: dict[str, Any]) -> None:
         lexicon: The glossary to print.
     """
     print(f"{lexicon['own']} names chosen, {lexicon['imposed']} imposed")
+    for reason, count in sorted(
+        lexicon["imposed_by_reason"].items(), key=lambda kv: (-kv[1], kv[0])
+    ):
+        print(f"  {count:>6}  {reason}")
     print("\nverbs, by family")
     for family, verbs in sorted(lexicon["families"].items()):
         ordered = sorted(verbs.items(), key=lambda kv: (-kv[1], kv[0]))

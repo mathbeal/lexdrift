@@ -2,12 +2,16 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import pytest
+
 from lexdrift.collector import collect_source
 from lexdrift.project import discover
 from lexdrift.rules import measure
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+    import pytest
 
 
 def rules_fired(source: object) -> None:
@@ -49,3 +53,48 @@ def test_common_verbs_are_known(tmp_path: Path) -> None:
     for verb in ("guess", "group", "extract", "merge", "split", "compare"):
         source = f"def {verb}_things():\n    pass\n"
         assert "L002" not in rules_fired(source), verb
+
+
+def test_a_test_function_contributes_its_own_words(tmp_path: Path) -> None:
+    from lexdrift.project import glossary, inspect
+
+    root = tmp_path / "app"
+    root.mkdir()
+    (root / "t.py").write_text("def test_fetch_account():\n    pass\n", encoding="utf-8")
+    lexicon = glossary(inspect(tmp_path))
+    assert lexicon["verbs"]["fetch"] == 1
+    assert "test" not in lexicon["nouns"]
+
+
+def test_the_test_prefix_never_counts_as_a_verb(tmp_path: Path) -> None:
+    from lexdrift.lexicon import split_chosen_words
+
+    assert split_chosen_words("test_fetch_account") == ["fetch", "account"]
+    assert split_chosen_words("testament_parser") == ["testament", "parser"]
+    assert split_chosen_words("fetch_account") == ["fetch", "account"]
+
+
+def test_the_glossary_says_why_names_were_imposed(tmp_path: Path) -> None:
+    from lexdrift.project import glossary, inspect
+
+    root = tmp_path / "app"
+    root.mkdir()
+    (root / "m.py").write_text(
+        "class A:\n    def __init__(self):\n        pass\n", encoding="utf-8"
+    )
+    reasons = glossary(inspect(tmp_path))["imposed_by_reason"]
+    assert reasons == {"language special method": 1}
+
+
+def test_dump_prints_the_reasons(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from lexdrift.cli import main
+
+    root = tmp_path / "app"
+    root.mkdir()
+    (root / "m.py").write_text(
+        "class A:\n    def __init__(self):\n        pass\n", encoding="utf-8"
+    )
+    main(["dump", str(tmp_path)])
+    assert "language special method" in capsys.readouterr().out

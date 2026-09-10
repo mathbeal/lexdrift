@@ -16,8 +16,6 @@ if TYPE_CHECKING:
 
     from .collector import Definition, Module
 
-CONVENTION_PREFIXES = ("test_",)
-
 
 @dataclass
 class Classification:
@@ -101,8 +99,6 @@ def _reason(
     """
     if definition.is_dunder:
         return "language special method"
-    if definition.name.startswith(CONVENTION_PREFIXES):
-        return "tool convention"
     if any(_is_third_party(d, imports, project_roots) for d in definition.decorators):
         return "third-party decorator"
     owner = definition.qualname.rsplit(".", 1)[0] if "." in definition.qualname else None

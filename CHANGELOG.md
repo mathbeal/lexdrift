@@ -17,8 +17,11 @@ First release.
   abbreviation whose full word is used elsewhere) and D003 (a name and a
   docstring describing different actions). Exit code 1 on findings.
 - `dump` — the lexicon without judgement: verbs by family, most used nouns,
-  and the share of the vocabulary imposed by third-party libraries. Text,
-  JSON and TSV output. The JSON form doubles as the baseline.
+  and the vocabulary imposed by third-party libraries, broken down by reason.
+  Text, JSON and TSV output. The JSON form doubles as the baseline.
+- Test functions count as chosen vocabulary. Only the `test_` prefix is
+  imposed by the tool; the rest is the author's, and often the clearest
+  statement of intent in a repository.
 - `rename` — renames occurrences whose target can be proven, and lists the
   ones it refuses to touch: attributes on an unknown receiver, string
   literals, dynamic access, and non-Python files.

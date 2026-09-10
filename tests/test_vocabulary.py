@@ -64,8 +64,9 @@ def test_plain_module_function_is_kept() -> None:
     assert "fetch_user" in names(classified().own)
 
 
-def test_test_functions_are_imposed_by_convention() -> None:
-    assert "test_fetch_user" in names(d for d, _ in classified().imposed)
+def test_a_test_function_is_chosen_vocabulary() -> None:
+    """Only the ``test_`` prefix is imposed; the rest is the author's."""
+    assert "test_fetch_user" in names(classified().own)
 
 
 def test_imposed_definitions_carry_a_reason() -> None:

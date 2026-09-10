@@ -16,7 +16,7 @@ from __future__ import annotations
 from collections.abc import Collection, Iterable, Mapping
 from typing import TYPE_CHECKING, Any
 
-from .lexicon import split_identifier
+from .lexicon import split_chosen_words
 from .rules import (
     Finding,
     _docstring_disagreement,
@@ -110,7 +110,7 @@ def _verb_drift(
     seen: dict[str, dict[str, Definition]] = {}
     counts: dict[str, int] = {}
     for definition in functions:
-        words = split_identifier(definition.name)
+        words = split_chosen_words(definition.name)
         head = words[0] if words else None
         if head is not None and head in verbs:
             seen.setdefault(verbs[head], {}).setdefault(head, definition)
@@ -159,7 +159,7 @@ def _abbreviation_drift(
     sites: dict[str, Definition] = {}
     present: set[str] = set()
     for definition in definitions:
-        for word in split_identifier(definition.name):
+        for word in split_chosen_words(definition.name):
             present.add(word)
             sites.setdefault(word, definition)
 
