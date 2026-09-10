@@ -22,7 +22,7 @@ def test_discover_skips_any_directory_holding_a_pyvenv_cfg(tmp_path: Path) -> No
     (weird / "bin").mkdir(parents=True)
     (weird / "pyvenv.cfg").write_text("home = /usr\n", encoding="utf-8")
     (weird / "bin" / "dumppdf.py").write_text("", encoding="utf-8")
-    assert [p for p in discover(tmp_path) if "nosync" in p] == []
+    assert [p for p in discover(tmp_path) if "nosync" in str(p)] == []
 
 
 def test_L003_ignores_a_docstring_that_merely_announces_a_return() -> None:

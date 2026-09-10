@@ -16,6 +16,7 @@ import ast
 import os
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from .project import SKIPPED, discover
 
@@ -209,18 +210,19 @@ def _foreign_files(root: str | os.PathLike[str], old: str) -> list[Unresolved]:
     """Les occurrences hors Python : gabarits, JSON, SQL, migrations."""
     found: list[Unresolved] = []
     word = re.compile(rf"\b{re.escape(old)}\b")
+    # Path.walk arrived in 3.12 and the floor is 3.11: os.walk stays.
     for current, directories, files in os.walk(str(root)):
         directories[:] = [d for d in directories if d not in SKIPPED]
         for name in sorted(files):
             if not name.endswith(TEXT_SUFFIXES):
                 continue
-            path = os.path.join(current, name)
+            path = Path(current) / name
             try:
-                with open(path, encoding="utf-8") as handle:
+                with path.open(encoding="utf-8") as handle:
                     for number, line in enumerate(handle, 1):
                         if word.search(line):
                             found.append(
-                                Unresolved(path, number, "non-Python", line.strip())
+                                Unresolved(str(path), number, "non-Python", line.strip())
                             )
             except (UnicodeDecodeError, OSError):
                 continue
@@ -246,16 +248,16 @@ def rename(
         What changed, what did not, and why.
     """
     report = Report()
-    plans: list[tuple[str, str, _Sites]] = []
+    plans: list[tuple[Path, str, _Sites]] = []
 
     for path in discover(root):
         try:
-            with open(path, encoding="utf-8") as handle:
+            with path.open(encoding="utf-8") as handle:
                 source = handle.read()
             tree = ast.parse(source)
         except (SyntaxError, UnicodeDecodeError, OSError):
             continue
-        sites = _Sites(old, new, path)
+        sites = _Sites(old, new, str(path))
         sites.visit(tree)
         if sites.collision and (sites.positions or sites.lines):
             report.refusal = f'"{new}" already exists in the same scope: rename refused'
@@ -267,15 +269,13 @@ def rename(
     for path, source, sites in plans:
         rewritten, count = _edit(source, old, new, sites.positions, sites.lines)
         report.renamed += count
-        report.files.append(path)
+        report.files.append(str(path))
         if not dry_run and count:
-            with open(path, "w", encoding="utf-8") as handle:
+            with path.open("w", encoding="utf-8") as handle:
                 handle.write(rewritten)
 
     report.warnings.extend(_foreign_files(root, old))
     for warning in report.warnings:
-        warning.path = os.path.relpath(warning.path, str(root)).replace(os.sep, "/")
-    report.files = [
-        os.path.relpath(p, str(root)).replace(os.sep, "/") for p in report.files
-    ]
+        warning.path = Path(warning.path).relative_to(root).as_posix()
+    report.files = [Path(p).relative_to(root).as_posix() for p in report.files]
     return report

@@ -9,10 +9,10 @@ feed ``lexdrift dump``. What one can legitimately fail on lives in
 from __future__ import annotations
 
 import json
-import os
 import re
 from collections import defaultdict
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from .lexicon import chosen_nouns, split_chosen_words
@@ -22,9 +22,10 @@ if TYPE_CHECKING:
 
     from .collector import Definition, Module
 
-_TABLE_PATH = os.path.join(os.path.dirname(__file__), "synonyms.json")
-_ABBREVIATION_PATH = os.path.join(os.path.dirname(__file__), "abbreviations.json")
-_COMPOUND_PATH = os.path.join(os.path.dirname(__file__), "compounds.json")
+_HERE = Path(__file__).parent
+_TABLE_PATH = _HERE / "synonyms.json"
+_ABBREVIATION_PATH = _HERE / "abbreviations.json"
+_COMPOUND_PATH = _HERE / "compounds.json"
 ANNOUNCES_A_RETURN = "return"
 _VOWELS = set("aeiouy")
 AMBIGUOUS = 2  # past one verb, the family is named several ways
@@ -49,7 +50,7 @@ class Finding:
     qualname: str
 
 
-def load_families(path: str = _TABLE_PATH) -> dict[str, list[str]]:
+def load_families(path: Path = _TABLE_PATH) -> dict[str, list[str]]:
     """Load the table of verb families.
 
     Args:
@@ -58,12 +59,12 @@ def load_families(path: str = _TABLE_PATH) -> dict[str, list[str]]:
     Returns:
         Family name to the verbs that belong to it.
     """
-    with open(path, encoding="utf-8") as handle:
+    with path.open(encoding="utf-8") as handle:
         table: dict[str, list[str]] = json.load(handle)
     return table
 
 
-def load_abbreviations(path: str = _ABBREVIATION_PATH) -> dict[str, list[str]]:
+def load_abbreviations(path: Path = _ABBREVIATION_PATH) -> dict[str, list[str]]:
     """Load the table of known abbreviations.
 
     Args:
@@ -72,12 +73,12 @@ def load_abbreviations(path: str = _ABBREVIATION_PATH) -> dict[str, list[str]]:
     Returns:
         Abbreviation to the words it stands for.
     """
-    with open(path, encoding="utf-8") as handle:
+    with path.open(encoding="utf-8") as handle:
         table: dict[str, list[str]] = json.load(handle)
     return table
 
 
-def load_compounds(path: str = _COMPOUND_PATH) -> list[str]:
+def load_compounds(path: Path = _COMPOUND_PATH) -> list[str]:
     """Load the declared multi-word terms.
 
     Args:
@@ -86,7 +87,7 @@ def load_compounds(path: str = _COMPOUND_PATH) -> list[str]:
     Returns:
         Terms, each written as a space-separated phrase.
     """
-    with open(path, encoding="utf-8") as handle:
+    with path.open(encoding="utf-8") as handle:
         terms: list[str] = json.load(handle)
     return terms
 

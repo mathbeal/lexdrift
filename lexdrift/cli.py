@@ -16,6 +16,7 @@ import json
 import logging
 import subprocess
 import sys
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from . import __version__
@@ -198,7 +199,7 @@ def _check(project: Project, options: argparse.Namespace) -> int:
     """
     baseline = None
     if options.baseline:
-        with open(options.baseline, encoding="utf-8") as handle:
+        with Path(options.baseline).open(encoding="utf-8") as handle:
             baseline = json.load(handle)
 
     found = compare(project, baseline)

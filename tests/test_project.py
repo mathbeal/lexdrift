@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from typing import TYPE_CHECKING
 
 from lexdrift.project import discover, glossary, inspect
@@ -32,7 +31,7 @@ def test_discover_skips_vendored_directories(tmp_path: Path) -> None:
             "build/lib/copy.py": "",
         },
     )
-    assert [os.path.basename(p) for p in discover(root)] == ["models.py"]
+    assert [p.name for p in discover(root)] == ["models.py"]
 
 
 def test_inspect_infers_project_roots_from_top_level_packages(tmp_path: Path) -> None:

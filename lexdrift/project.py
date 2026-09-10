@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from collections import Counter
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 from .collector import Module, collect_source
@@ -60,10 +61,10 @@ def _is_environment(current: str, name: str) -> bool:
     Returns:
         True when it carries a ``pyvenv.cfg``.
     """
-    return os.path.exists(os.path.join(current, name, "pyvenv.cfg"))
+    return (Path(current) / name / "pyvenv.cfg").exists()
 
 
-def discover(root: str | os.PathLike[str]) -> list[str]:
+def discover(root: str | os.PathLike[str]) -> list[Path]:
     """List the Python files of a repository.
 
     Dependencies and build artefacts are skipped.
@@ -74,7 +75,8 @@ def discover(root: str | os.PathLike[str]) -> list[str]:
     Returns:
         Paths to every ``.py`` file worth reading, sorted.
     """
-    found: list[str] = []
+    found: list[Path] = []
+    # Path.walk arrived in 3.12 and the floor is 3.11: os.walk stays.
     for current, directories, files in os.walk(str(root)):
         directories[:] = sorted(
             d
@@ -84,12 +86,12 @@ def discover(root: str | os.PathLike[str]) -> list[str]:
             and not _is_environment(current, d)
         )
         found.extend(
-            os.path.join(current, name) for name in sorted(files) if name.endswith(".py")
+            Path(current) / name for name in sorted(files) if name.endswith(".py")
         )
     return found
 
 
-def _module_name(root: str | os.PathLike[str], path: str) -> str:
+def _module_name(root: str | os.PathLike[str], path: Path) -> str:
     """Derive the dotted module name of a file.
 
     Args:
@@ -99,10 +101,8 @@ def _module_name(root: str | os.PathLike[str], path: str) -> str:
     Returns:
         The dotted name, empty for a root-level ``__init__.py``.
     """
-    relative = os.path.relpath(path, str(root))
-    without_extension = os.path.splitext(relative)[0]
-    parts = [p for p in without_extension.split(os.sep) if p != "__init__"]
-    return ".".join(parts)
+    relative = path.relative_to(root).with_suffix("")
+    return ".".join(p for p in relative.parts if p != "__init__")
 
 
 def inspect(root: str | os.PathLike[str]) -> Project:
@@ -118,12 +118,12 @@ def inspect(root: str | os.PathLike[str]) -> Project:
     for path in discover(root):
         name = _module_name(root, path)
         try:
-            with open(path, encoding="utf-8") as handle:
+            with path.open(encoding="utf-8") as handle:
                 project.modules.append(
-                    collect_source(handle.read(), module=name, path=path)
+                    collect_source(handle.read(), module=name, path=str(path))
                 )
         except (SyntaxError, UnicodeDecodeError, OSError) as error:
-            project.unreadable[path] = str(error)
+            project.unreadable[str(path)] = str(error)
         if name:
             project.project_roots.add(name.split(".")[0])
     return project
@@ -295,7 +295,7 @@ def paths(project: Project) -> dict[str, str]:
         Dotted module name to relative path, with forward slashes.
     """
     return {
-        module.module: os.path.relpath(module.path, project.root).replace(os.sep, "/")
+        module.module: Path(module.path).relative_to(project.root).as_posix()
         for module in project.modules
         if module.path
     }

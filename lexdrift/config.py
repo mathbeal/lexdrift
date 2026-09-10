@@ -9,8 +9,8 @@ which. A project declares its own, or declares nothing.
 
 from __future__ import annotations
 
-import os
 import tomllib
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -20,7 +20,7 @@ CONFIG_NAME = "lexdrift.toml"
 SHARED_NAME = "pyproject.toml"
 
 
-def _load_section(directory: str) -> Mapping[str, Any] | None:
+def _load_section(directory: Path) -> Mapping[str, Any] | None:
     """Read the lexdrift settings held in one directory.
 
     A dedicated file wins over the shared one, so that a project can
@@ -32,14 +32,14 @@ def _load_section(directory: str) -> Mapping[str, Any] | None:
     Returns:
         The settings found, or None when this directory holds none.
     """
-    own = os.path.join(directory, CONFIG_NAME)
-    if os.path.exists(own):
-        with open(own, "rb") as handle:
+    own = directory / CONFIG_NAME
+    if own.exists():
+        with own.open("rb") as handle:
             settings: Mapping[str, Any] = tomllib.load(handle)
         return settings
-    shared = os.path.join(directory, SHARED_NAME)
-    if os.path.exists(shared):
-        with open(shared, "rb") as handle:
+    shared = directory / SHARED_NAME
+    if shared.exists():
+        with shared.open("rb") as handle:
             document = tomllib.load(handle)
         section: Mapping[str, Any] = document.get("tool", {}).get("lexdrift", {})
         return section
@@ -59,17 +59,16 @@ def _load_settings(root: str) -> Mapping[str, Any]:
     Returns:
         The settings found, empty when there are none.
     """
-    current = os.path.abspath(root)
+    current = Path(root).resolve()
     while True:
         settings = _load_section(current)
         if settings is not None:
             return settings
-        if os.path.isdir(os.path.join(current, ".git")):
+        if (current / ".git").is_dir():
             return {}
-        parent = os.path.dirname(current)
-        if parent == current:
+        if current.parent == current:
             return {}
-        current = parent
+        current = current.parent
 
 
 def load_config(root: str) -> dict[str, list[str]]:

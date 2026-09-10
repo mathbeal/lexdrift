@@ -65,9 +65,6 @@ ignore = [
   "COM812",  # conflicts with the formatter
   "ISC001",  # conflicts with the formatter
   "CPY001",  # no copyright header: the licence lives in LICENSE
-  # os.walk has no pathlib equivalent before Python 3.12, and we target 3.11.
-  # Mixing pathlib and os.path would be worse than committing to os.path.
-  "PTH100", "PTH110", "PTH112", "PTH118", "PTH119", "PTH120", "PTH122", "PTH123", "PTH206",
 ]
 
 [tool.ruff.lint.pydocstyle]
