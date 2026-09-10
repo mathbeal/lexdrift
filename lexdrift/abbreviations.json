@@ -1,0 +1,15 @@
+{
+  "acc": ["account"], "addr": ["address"], "adr": ["adresse"], "amt": ["amount"],
+  "arg": ["argument"], "arr": ["array"], "attr": ["attribute"], "auth": ["authentication"],
+  "btn": ["button"], "cb": ["callback"], "cfg": ["config", "configuration"],
+  "cmd": ["command"], "cnt": ["count"], "col": ["column"], "conn": ["connection"],
+  "ctx": ["context"], "desc": ["description"], "dir": ["directory"], "doc": ["document"],
+  "dst": ["destination"], "elem": ["element"], "env": ["environment"], "err": ["error"],
+  "fn": ["function"], "idx": ["index"], "img": ["image"], "lst": ["list"],
+  "msg": ["message"], "nb": ["nombre"], "num": ["number"], "obj": ["object"],
+  "opt": ["option"], "param": ["parameter"], "pos": ["position"], "prev": ["previous"],
+  "prop": ["property"], "pwd": ["password"], "qte": ["quantite"], "qty": ["quantity"],
+  "ref": ["reference"], "repo": ["repository"], "req": ["request"], "res": ["response", "result"],
+  "src": ["source"], "str": ["string"], "svc": ["service"], "tmp": ["temp", "temporary"],
+  "usr": ["user", "utilisateur"], "val": ["value"], "var": ["variable"]
+}

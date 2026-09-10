@@ -1,0 +1,21 @@
+name: lexicon
+
+on: [push, pull_request]
+
+jobs:
+  sarif:
+    name: lexdrift → Security tab
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - run: lexdrift check lexdrift --format sarif > lexdrift.sarif
+      - uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: lexdrift.sarif

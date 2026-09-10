@@ -1,0 +1,336 @@
+{
+  "obtain": [
+    "get",
+    "fetch",
+    "retrieve",
+    "load",
+    "read",
+    "obtain",
+    "acquire",
+    "obtenir",
+    "recuperer",
+    "lire",
+    "charger",
+    "recupere",
+    "lit",
+    "charge",
+    "obtient"
+  ],
+  "return": [
+    "return",
+    "yield",
+    "retourner",
+    "renvoyer",
+    "retourne",
+    "renvoie",
+    "rend"
+  ],
+  "create": [
+    "create",
+    "make",
+    "build",
+    "generate",
+    "construct",
+    "creer",
+    "construire",
+    "generer",
+    "fabriquer",
+    "cree",
+    "construit",
+    "genere",
+    "fabrique"
+  ],
+  "delete": [
+    "delete",
+    "remove",
+    "destroy",
+    "drop",
+    "erase",
+    "purge",
+    "supprimer",
+    "effacer",
+    "retirer",
+    "supprime",
+    "efface",
+    "retire"
+  ],
+  "update": [
+    "update",
+    "modify",
+    "change",
+    "edit",
+    "set",
+    "patch",
+    "modifier",
+    "changer",
+    "mettre",
+    "modifie",
+    "met"
+  ],
+  "save": [
+    "save",
+    "store",
+    "persist",
+    "write",
+    "commit",
+    "enregistrer",
+    "ecrire",
+    "sauvegarder",
+    "enregistre",
+    "ecrit",
+    "sauvegarde"
+  ],
+  "check": [
+    "check",
+    "validate",
+    "verify",
+    "ensure",
+    "assert",
+    "verifier",
+    "valider",
+    "controler",
+    "verifie",
+    "valide",
+    "controle"
+  ],
+  "convert": [
+    "convert",
+    "transform",
+    "cast",
+    "parse",
+    "serialize",
+    "encode",
+    "decode",
+    "convertir",
+    "transformer",
+    "convertit",
+    "transforme"
+  ],
+  "clean": [
+    "clean",
+    "sanitize",
+    "normalize",
+    "nettoyer",
+    "normaliser",
+    "nettoie",
+    "normalise"
+  ],
+  "search": [
+    "find",
+    "search",
+    "lookup",
+    "locate",
+    "query",
+    "filter",
+    "chercher",
+    "trouver",
+    "filtrer",
+    "cherche",
+    "trouve",
+    "filtre"
+  ],
+  "send": [
+    "send",
+    "post",
+    "publish",
+    "emit",
+    "dispatch",
+    "push",
+    "envoyer",
+    "publier",
+    "emettre",
+    "envoie",
+    "publie",
+    "emet"
+  ],
+  "compute": [
+    "compute",
+    "calculate",
+    "evaluate",
+    "derive",
+    "calculer",
+    "evaluer",
+    "calcule",
+    "evalue"
+  ],
+  "start": [
+    "start",
+    "run",
+    "launch",
+    "execute",
+    "begin",
+    "boot",
+    "demarrer",
+    "lancer",
+    "executer",
+    "demarre",
+    "lance"
+  ],
+  "stop": [
+    "stop",
+    "halt",
+    "shutdown",
+    "terminate",
+    "kill",
+    "close",
+    "arreter",
+    "fermer",
+    "arrete",
+    "ferme"
+  ],
+  "add": [
+    "add",
+    "append",
+    "insert",
+    "register",
+    "attach",
+    "ajouter",
+    "inserer",
+    "ajoute",
+    "insere"
+  ],
+  "display": [
+    "show",
+    "display",
+    "render",
+    "print",
+    "draw",
+    "afficher",
+    "montrer",
+    "dessiner",
+    "affiche",
+    "montre",
+    "dessine"
+  ],
+  "process": [
+    "process",
+    "handle",
+    "manage",
+    "traiter",
+    "gerer",
+    "traite",
+    "gere"
+  ],
+  "init": [
+    "init",
+    "initialize",
+    "setup",
+    "configure",
+    "prepare",
+    "initialiser",
+    "preparer",
+    "configurer",
+    "initialise"
+  ],
+  "open": [
+    "open",
+    "connect",
+    "bind",
+    "ouvrir",
+    "connecter",
+    "ouvre",
+    "connecte"
+  ],
+  "count": [
+    "count",
+    "measure",
+    "compter",
+    "mesurer",
+    "compte",
+    "mesure"
+  ],
+  "sort": [
+    "sort",
+    "order",
+    "rank",
+    "trier",
+    "classer",
+    "trie",
+    "classe"
+  ],
+  "extract": [
+    "extract",
+    "ingest",
+    "pull",
+    "extraire"
+  ],
+  "merge": [
+    "merge",
+    "join",
+    "combine",
+    "assemble",
+    "fusionner",
+    "assembler"
+  ],
+  "split": [
+    "split",
+    "partition",
+    "separate",
+    "separer",
+    "decouper"
+  ],
+  "apply": [
+    "apply",
+    "appliquer"
+  ],
+  "resolve": [
+    "resolve",
+    "resoudre"
+  ],
+  "format": [
+    "format",
+    "formater"
+  ],
+  "compare": [
+    "compare",
+    "diff",
+    "comparer"
+  ],
+  "guess": [
+    "guess",
+    "infer",
+    "predict",
+    "deviner",
+    "estimer"
+  ],
+  "group": [
+    "group",
+    "bucket",
+    "cluster",
+    "grouper",
+    "regrouper"
+  ],
+  "collect": [
+    "collect",
+    "gather",
+    "collecter",
+    "rassembler"
+  ],
+  "export": [
+    "export",
+    "dump",
+    "exporter"
+  ],
+  "import": [
+    "import",
+    "importer"
+  ],
+  "wait": [
+    "wait",
+    "await",
+    "attendre"
+  ],
+  "try": [
+    "try",
+    "attempt",
+    "essayer",
+    "tenter"
+  ],
+  "analyse": [
+    "analyse",
+    "analyze",
+    "analyser",
+    "examine",
+    "inspect"
+  ]
+}

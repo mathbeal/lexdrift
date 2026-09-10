@@ -1,0 +1,24 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":semanticCommitsDisabled"],
+  "timezone": "Europe/Paris",
+  "schedule": ["before 6am on monday"],
+  "prConcurrentLimit": 3,
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "This project has no runtime dependencies. Everything Renovate sees is a development tool or a CI action; group them so review stays one pull request.",
+      "matchManagers": ["pep621", "github-actions"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "development tooling",
+      "automerge": false
+    },
+    {
+      "description": "Linters change what the build accepts. Their major versions are reviewed one at a time.",
+      "matchPackageNames": ["ruff", "mypy"],
+      "matchUpdateTypes": ["major"],
+      "groupName": null
+    }
+  ],
+  "lockFileMaintenance": { "enabled": false }
+}
