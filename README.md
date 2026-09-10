@@ -2,7 +2,7 @@
 
 Read the lexicon of a Python repository — verbs, nouns, synonyms — setting aside the vocabulary imposed by third-party libraries.
 
-Zero runtime dependencies. Python 3.9 and up.
+Zero runtime dependencies. Python 3.9 to 3.14.
 
 ## What it does
 
@@ -29,6 +29,8 @@ cd lexdrift && pip install -e .
 ```
 
 Not published on PyPI yet.
+
+The test suite, `mypy --strict` and `ruff` run on CPython 3.9, 3.10, 3.11, 3.12, 3.13 and 3.14 in CI.
 
 ## Commands
 
