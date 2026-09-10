@@ -184,9 +184,11 @@ Verbs form a closed universal set: `get`, `fetch` and `retrieve` mean the same t
 ```toml
 # pyproject.toml, at the root of the repository
 [tool.lexdrift.nouns]
-user = ["user", "account", "customer"]
-order = ["order", "purchase", "transaction"]
+user  = ["account", "customer"]
+order = ["purchase", "transaction"]
 ```
+
+Read it as a sentence: *we say `user`, not `account` or `customer`.*
 
 **The family name is the word you chose.** `user` above is canonical; `account` and `customer` are what the project does not want, and `check` reports them. You do not have to repeat the key inside its own list — writing `user = ["customer"]` declares both. Everything is lowercased, and a noun claimed by two families is refused rather than silently assigned to one.
 
@@ -207,6 +209,68 @@ lexdrift dump . --max-count 1 --kind nouns
 ```
 
 Read the words used exactly once. When `customer` sits next to `user`, you have found a family — declare it, and it stops coming back.
+
+#### Tables worth copying
+
+**A web application.** The four families almost every one of them needs.
+
+```toml
+[tool.lexdrift.nouns]
+user     = ["account", "member"]
+request  = ["query", "call"]
+response = ["reply", "result"]
+config   = ["settings", "options", "preferences"]
+```
+
+`config` earns its place more often than the rest: a codebase that has lived a few years usually holds all four spellings, written by four people who each thought they were the first.
+
+**A data pipeline.**
+
+```toml
+[tool.lexdrift.nouns]
+job    = ["task", "run"]
+record = ["row", "entry"]
+source = ["origin", "input"]
+error  = ["failure", "fault"]
+```
+
+**A codebase written in two languages.** The verb families already cover French, conjugated and infinitive. Nouns are where a bilingual team drifts, and it is invisible to a reviewer who reads both without noticing they are reading both.
+
+```toml
+[tool.lexdrift.nouns]
+user    = ["utilisateur", "usager"]
+invoice = ["facture"]
+amount  = ["montant"]
+```
+
+#### What a family is not
+
+**`user` and `account` are one thing in a blog and two in a bank**, where one user holds several accounts. Declared there, the rule would report correct code, and a rule that reports correct code is uninstalled within the week.
+
+The test takes a second: *can both words appear in one sentence describing the system, meaning different things?* An order has a price and a cost, and they differ. A record has a source and an origin, and they may not. You know; the tool cannot.
+
+**Declaring too much is worse than declaring nothing.** Four families you are sure of beat twenty you half meant.
+
+#### Adopting it on a repository that already has history
+
+An existing codebase will fail on its whole past the moment you declare anything. Freeze that past first, then only what comes next is a fault.
+
+```bash
+# 1. declare the families, then look at the damage
+lexdrift check .
+#    shop.py:2: D004 "customer" is new for the idea "user", already named by user
+
+# 2. freeze what exists today, and commit the file
+lexdrift dump . --format json > lexdrift.lock
+
+# 3. the past no longer blocks
+lexdrift check . --baseline lexdrift.lock        # exit 0
+
+# 4. a synonym written tomorrow does
+lexdrift check . --baseline lexdrift.lock        # exit 1 on the new one
+```
+
+Step 1 is worth doing even if you never keep its output: it is the only cheap way to find out how much your vocabulary has drifted before deciding whether to care.
 
 **Narrowing the dump.** A lexicon obeys Zipf: a handful of words carry the repository, and a long tail carries everything else. Both ends are worth reading, for opposite reasons.
 
