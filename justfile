@@ -1,0 +1,43 @@
+# Run `just` to see the recipes.
+default:
+    @just --list
+
+# Install the project and its development tools.
+setup:
+    uv sync --all-extras
+
+# Every gate CI runs, in the same order.
+check: lint types test self lock
+
+lint:
+    uv run ruff check lexdrift tests
+    uv run ruff format --check lexdrift tests
+
+types:
+    uv run mypy
+
+test:
+    uv run pytest --cov
+
+# The tool must pass on its own code.
+self:
+    uv run lexdrift check lexdrift
+
+lock:
+    uv lock --check
+
+# Reformat and apply the safe fixes.
+fix:
+    uv run ruff check lexdrift tests --fix
+    uv run ruff format lexdrift tests
+
+# Audit the workflows and hunt typos, as CI does.
+hygiene:
+    uvx typos .
+    uvx zizmor --persona=regular .github/workflows/
+
+# Build the wheel and the sdist, and check them.
+build:
+    rm -rf dist
+    uv build
+    uv run --no-project --with twine twine check --strict dist/*

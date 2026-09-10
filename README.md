@@ -46,6 +46,20 @@ A library defines its own vocabulary and inherits almost none. An application bu
 
 Every figure above is reproducible: clone the repository and run `lexdrift dump`.
 
+### Why it matters more than it used to
+
+Vocabulary drift used to be a matter of taste. It stopped being one when agents
+started writing code.
+
+An agent that meets `get_user` in one file and `fetch_user` in another has to
+guess which one to use next, and it guesses badly — it has no memory of the
+convention, only the evidence in front of it. Factory's agent-readiness rubric
+scores *one term per concept* as the first of its seven dimensions, under
+**Agent Contract**.
+
+This repository holds itself to that rule: [AGENTS.md](AGENTS.md) states it,
+and `lexdrift check lexdrift` enforces it in CI.
+
 ### Speed
 
 Around 150,000 lines per second, linear, single pass, no dependencies. The whole of pandas — 710,000 lines across 1,524 files — takes under five seconds.
@@ -221,6 +235,12 @@ uv run --all-extras --python 3.14 pytest
 Without uv, `pip install -e ".[dev]"` works too.
 
 `ruff` runs with every rule enabled; the exceptions are listed in `pyproject.toml` with their reason. `mypy` runs in strict mode. Coverage is enforced at 100%, branches included.
+
+## Contributing
+
+[AGENTS.md](AGENTS.md) is the contract — for agents and for people.
+[CONTRIBUTING.md](CONTRIBUTING.md) covers the rest. `just check` runs every
+gate CI runs.
 
 ## Licence
 
