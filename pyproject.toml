@@ -7,7 +7,7 @@ name = "lexdrift"
 dynamic = ["version"]
 description = "Read the lexicon of a Python repository: verbs, nouns, synonyms — setting aside the vocabulary imposed by third-party libraries."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "Mathieu Beal" }]
@@ -17,8 +17,6 @@ classifiers = [
   "Environment :: Console",
   "Intended Audience :: Developers",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
@@ -56,7 +54,7 @@ version = { attr = "lexdrift.__version__" }
 lexdrift = ["*.json"]
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py311"
 line-length = 90
 
 [tool.ruff.lint]
@@ -67,7 +65,7 @@ ignore = [
   "COM812",  # conflicts with the formatter
   "ISC001",  # conflicts with the formatter
   "CPY001",  # no copyright header: the licence lives in LICENSE
-  # os.walk has no pathlib equivalent before Python 3.12, and we target 3.9.
+  # os.walk has no pathlib equivalent before Python 3.12, and we target 3.11.
   # Mixing pathlib and os.path would be worse than committing to os.path.
   "PTH110", "PTH118", "PTH119", "PTH120", "PTH122", "PTH123", "PTH206",
 ]
@@ -88,9 +86,9 @@ convention = "google"
 ]
 
 [tool.mypy]
-# mypy 2.x refuses to target anything below 3.10. The 3.9 floor is enforced
-# elsewhere: ruff targets py39, and CI runs the suite on a real 3.9.
-python_version = "3.10"
+# tomllib is in the standard library from 3.11, which is what lets lexdrift
+# read its own configuration file without taking a dependency.
+python_version = "3.11"
 strict = true
 warn_unreachable = true
 files = ["lexdrift"]

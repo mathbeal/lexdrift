@@ -1,13 +1,13 @@
 # lexdrift
 
 [![quality](https://github.com/mathbeal/lexdrift/actions/workflows/quality.yml/badge.svg)](https://github.com/mathbeal/lexdrift/actions/workflows/quality.yml)
-[![python](https://img.shields.io/badge/python-3.9%20%E2%80%93%203.14-blue)](https://github.com/mathbeal/lexdrift)
+[![python](https://img.shields.io/badge/python-3.11%20%E2%80%93%203.14-blue)](https://github.com/mathbeal/lexdrift)
 [![coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](https://github.com/mathbeal/lexdrift)
 [![licence](https://img.shields.io/badge/licence-MIT-blue)](https://github.com/mathbeal/lexdrift/blob/main/LICENSE)
 
 Read the lexicon of a Python repository — verbs, nouns, synonyms — setting aside the vocabulary imposed by third-party libraries.
 
-Zero runtime dependencies. Python 3.9 to 3.14.
+Zero runtime dependencies. Python 3.11 to 3.14.
 
 ## What it does
 
@@ -78,7 +78,7 @@ cd lexdrift
 uv sync            # or: pip install -e .
 ```
 
-The test suite, `mypy --strict` and `ruff` run on CPython 3.9, 3.10, 3.11, 3.12, 3.13 and 3.14 in CI.
+The test suite, `mypy --strict` and `ruff` run on CPython 3.11, 3.12, 3.13 and 3.14 in CI.
 
 ## Commands
 
@@ -99,8 +99,9 @@ Reports drift: a word introduced for an idea the repository already named.
 | **D001** | A verb new to a family the repository already named — adding `fetch_*` where it said `get_*` |
 | **D002** | A known abbreviation whose full word is used elsewhere — `usr` alongside `user` |
 | **D003** | A name and a docstring describing different actions — `save_config()` documented as "Deletes…" |
+| **D004** | A noun new to a family **the project declared** — `customer` where it said `user`. Silent unless declared |
 
-D001 and D002 are measured against a baseline. D003 does not need one: it is a local inconsistency, not a property of the corpus.
+D001, D002 and D004 are measured against a baseline. D003 does not need one: it is a local inconsistency, not a property of the corpus.
 
 ```bash
 lexdrift dump . --format json > lexdrift.lock   # commit this file
@@ -172,9 +173,32 @@ Refuses on a modified git tree unless `--force`. Refuses when the new name alrea
 
 ## Configuration
 
-Two tables decide everything, and both ship with the package.
+Three tables ship with the package, and one is written by you.
 
-`lexdrift/synonyms.json` groups verbs into families. `lexdrift/abbreviations.json` maps abbreviations to the words they stand for. Both are hand-written, readable, and meant to be edited. Families cover English and French, conjugated and infinitive, so that a French codebase is not reported as verbless.
+`lexdrift/synonyms.json` groups verbs into families. `lexdrift/abbreviations.json` maps abbreviations to the words they stand for. `lexdrift/compounds.json` lists the terms an identifier spells in several pieces, so that `third_party` counts as one noun and not as two. All three are hand-written, readable, and meant to be edited. Families cover English and French, conjugated and infinitive, so that a French codebase is not reported as verbless.
+
+### `lexdrift.toml` — the nouns only you can declare
+
+Verbs form a closed universal set: `get`, `fetch` and `retrieve` mean the same thing in every repository on earth, which is why their table ships with the tool. **Nouns do not.** `user`, `account` and `customer` are one person in one domain and three different things in another, and no shipped table can know which. So lexdrift ships no opinion about nouns, and a project declares its own:
+
+```toml
+# lexdrift.toml, at the root of the repository
+[nouns]
+user = ["user", "account", "customer"]
+order = ["order", "purchase", "transaction"]
+```
+
+Declared families are then held to the same standard as verbs: `dump` reports a family named several ways (**L006**), and `check` fails on a noun that is new to one (**D004**).
+
+**Without this file, nothing about nouns is ever reported.** That is the intended default: a rule that fires on vocabulary the tool does not understand is a rule that gets switched off.
+
+The file is also cheap to write, because the tool hands you the draft:
+
+```bash
+lexdrift dump . --max-count 1 --kind nouns
+```
+
+Read the words used exactly once. When `customer` sits next to `user`, you have found a family — declare it, and it stops coming back.
 
 **Narrowing the dump.** A lexicon obeys Zipf: a handful of words carry the repository, and a long tail carries everything else. Both ends are worth reading, for opposite reasons.
 
@@ -240,7 +264,7 @@ uvx pre-commit install
 To run the suite against another interpreter, uv fetches it if needed:
 
 ```bash
-uv run --python 3.9 pytest
+uv run --python 3.11 pytest
 uv run --python 3.14 pytest
 ```
 

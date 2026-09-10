@@ -47,4 +47,4 @@ def test_sarif_result_points_at_the_offending_definition(tmp_path: Path) -> None
 def test_sarif_declares_every_rule_in_the_driver(tmp_path: Path) -> None:
     project, found = prepared(tmp_path)
     driver = json.loads(as_sarif(project, found))["runs"][0]["tool"]["driver"]
-    assert {rule["id"] for rule in driver["rules"]} == {"D001", "D002", "D003"}
+    assert {rule["id"] for rule in driver["rules"]} == {"D001", "D002", "D003", "D004"}

@@ -15,7 +15,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from .lexicon import split_chosen_words
+from .lexicon import chosen_nouns, split_chosen_words
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Mapping
@@ -117,6 +117,32 @@ def _leading_verb(definition: Definition, verbs: Mapping[str, str]) -> str | Non
     return words[0] if words and words[0] in verbs else None
 
 
+def split_name(
+    definition: Definition,
+    verbs: Mapping[str, str],
+    compounds: Collection[str] = (),
+) -> tuple[str | None, list[str]]:
+    """Split a name into the verb it opens with and the nouns it carries.
+
+    A class names a thing, never an action: its first word is a noun even
+    when it reads like a verb.
+
+    Args:
+        definition: The definition to read.
+        verbs: Verb to family.
+        compounds: Declared multi-word terms.
+
+    Returns:
+        The leading verb or None, and the nouns of the name.
+    """
+    words = split_chosen_words(definition.name)
+    if not words:
+        return None, []
+    if definition.kind != "class" and words[0] in verbs:
+        return words[0], chosen_nouns(words[1:], compounds)
+    return None, chosen_nouns(words, compounds)
+
+
 def _strip_accents(word: str) -> str:
     """Strip accents from a word.
 
@@ -177,6 +203,7 @@ def measure(
     modules: Iterable[Module],
     project_roots: Collection[str] = frozenset(),
     families: Mapping[str, list[str]] | None = None,
+    nouns: Mapping[str, list[str]] | None = None,
 ) -> list[Finding]:
     """Measure the project's own vocabulary against itself.
 
@@ -184,6 +211,7 @@ def measure(
         modules: The parsed modules to read.
         project_roots: Top-level packages belonging to the project.
         families: Verb families to use. Defaults to the shipped table.
+        nouns: Noun families the project declared for itself.
 
     Returns:
         Observations, sorted by module then line.
@@ -201,6 +229,7 @@ def measure(
         *_docstring_disagreement(functions, verbs),
         *_abbreviations(classification.own),
         *_polysemy(functions, verbs, imports, project_roots),
+        *_noun_synonyms(classification.own, verbs, nouns or {}),
     ]
     return sorted(findings, key=lambda f: (f.module, f.lineno, f.rule))
 
@@ -387,4 +416,52 @@ def _polysemy(
                     )
                 )
                 break
+    return findings
+
+
+def _noun_synonyms(
+    definitions: Iterable[Definition],
+    verbs: Mapping[str, str],
+    families: Mapping[str, Iterable[str]],
+) -> list[Finding]:
+    """Report a declared noun family named by more than one noun.
+
+    Nothing is reported unless the project declared the family: the tool
+    ships no opinion on what a noun means.
+
+    Args:
+        definitions: The definitions to read.
+        verbs: Verb to family, to tell a leading verb from a noun.
+        families: Family name to the nouns that name it.
+
+    Returns:
+        One observation per family named several ways.
+    """
+    if not families:
+        return []
+    index = {noun: family for family, group in families.items() for noun in group}
+    compounds = load_compounds()
+    used: dict[str, dict[str, Definition]] = defaultdict(dict)
+    for definition in definitions:
+        _, carried = split_name(definition, verbs, compounds)
+        for noun in carried:
+            if noun in index:
+                used[index[noun]].setdefault(noun, definition)
+
+    findings: list[Finding] = []
+    for family, occurrences in sorted(used.items()):
+        if len(occurrences) < AMBIGUOUS:
+            continue
+        chosen = sorted(occurrences)
+        first = occurrences[chosen[0]]
+        findings.append(
+            Finding(
+                "L006",
+                f'family "{family}": {len(chosen)} nouns for one idea '
+                f"— {', '.join(chosen)}",
+                first.module,
+                first.lineno,
+                first.qualname,
+            )
+        )
     return findings

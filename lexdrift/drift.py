@@ -16,13 +16,16 @@ from __future__ import annotations
 from collections.abc import Collection, Iterable, Mapping
 from typing import TYPE_CHECKING, Any
 
+from .config import load_config
 from .lexicon import split_chosen_words
 from .rules import (
     Finding,
     _docstring_disagreement,
     _verb_index,
     load_abbreviations,
+    load_compounds,
     load_families,
+    split_name,
 )
 from .vocabulary import classify
 
@@ -82,6 +85,7 @@ def compare(project: Project, baseline: Baseline | None = None) -> list[Finding]
     findings = [
         *_verb_drift(functions, verbs, _established(baseline)),
         *_abbreviation_drift(own, _known_words(baseline)),
+        *_noun_drift(own, verbs, load_config(project.root), _baseline_nouns(baseline)),
         *(
             Finding("D003", f.message, f.module, f.lineno, f.qualname)
             for f in _docstring_disagreement(functions, verbs)
@@ -180,4 +184,77 @@ def _abbreviation_drift(
                         definition.qualname,
                     )
                 )
+    return findings
+
+
+def _baseline_nouns(baseline: Baseline | None) -> set[str]:
+    """Read the nouns the baseline already accepted.
+
+    Args:
+        baseline: The accepted state, or None.
+
+    Returns:
+        Every noun the baseline knew.
+    """
+    if not baseline:
+        return set()
+    return set(baseline.get("nouns", {}))
+
+
+def _noun_drift(
+    definitions: Iterable[Definition],
+    verbs: Mapping[str, str],
+    families: Mapping[str, Iterable[str]],
+    accepted: Collection[str],
+) -> list[Finding]:
+    """Report a new noun for an idea the project already named.
+
+    With no baseline, the established noun is the most used one. Nothing is
+    reported unless the project declared the family.
+
+    Args:
+        definitions: The definitions to read.
+        verbs: Verb to family, to tell a leading verb from a noun.
+        families: Family name to the nouns that name it.
+        accepted: The nouns the baseline already knew.
+
+    Returns:
+        One finding per newcomer noun.
+    """
+    if not families:
+        return []
+    index = {noun: family for family, group in families.items() for noun in group}
+    compounds = load_compounds()
+    seen: dict[str, dict[str, Definition]] = {}
+    counts: dict[str, int] = {}
+    for definition in definitions:
+        _, carried = split_name(definition, verbs, compounds)
+        for noun in carried:
+            if noun in index:
+                seen.setdefault(index[noun], {}).setdefault(noun, definition)
+                counts[noun] = counts.get(noun, 0) + 1
+
+    findings: list[Finding] = []
+    for family, occurrences in sorted(seen.items()):
+        known = {noun for noun in occurrences if noun in accepted}
+        if known:
+            newcomers = sorted(set(occurrences) - known)
+            reference = sorted(known)
+        else:
+            if len(occurrences) < AMBIGUOUS:
+                continue
+            ordered = sorted(occurrences, key=lambda n: (-counts[n], n))
+            newcomers, reference = sorted(ordered[1:]), ordered[:1]
+        for noun in newcomers:
+            definition = occurrences[noun]
+            findings.append(
+                Finding(
+                    "D004",
+                    f'"{noun}" is new for the idea "{family}", '
+                    f"already named by {', '.join(reference)}",
+                    definition.module,
+                    definition.lineno,
+                    definition.qualname,
+                )
+            )
     return findings

@@ -16,6 +16,7 @@ RULES = {
     "D001": "A new verb for an idea already named",
     "D002": "A new abbreviation of a word spelled out elsewhere",
     "D003": "The name and the docstring do not say the same thing",
+    "D004": "A new noun for an idea the project already named",
 }
 
 

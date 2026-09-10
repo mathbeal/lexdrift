@@ -23,6 +23,7 @@ A linter that reads the lexicon of a Python repository. Three commands, three
 contracts:
 
 - `check` returns a verdict on drift — exit 0 or 1
+- noun families are declared per project in `lexdrift.toml` under `[nouns]`; with no file, no noun is ever reported
 - `dump` measures and never judges — always exit 0; `--most-common`, `--least-common`, `--min-count`, `--max-count` and `--kind` narrow it before rendering, so every format shows the same words
 - `rename` renames what it can prove and lists what it cannot
 
@@ -35,8 +36,10 @@ through the `lexdrift` logger, on stderr.
 **Zero runtime dependencies.** Only the standard library. Adding one needs a
 reason written in the pull request, not a convenience.
 
-**Python 3.9 is the floor.** `ruff` targets `py39` and CI runs the suite on a
-real 3.9. Anything unavailable there is a bug.
+**Python 3.11 is the floor.** `ruff` targets `py311` and CI runs the suite on a
+real 3.11. Anything unavailable there is a bug. The floor is 3.11 and not lower
+because `tomllib` enters the standard library there, which is what lets the tool
+read `lexdrift.toml` without taking a dependency.
 
 **Tests come first.** Write the failing test, watch it fail, then write the
 code. Coverage is enforced at 100%, branches included.
@@ -61,4 +64,4 @@ uv run lexdrift check lexdrift
 ```
 
 All six must pass. CI runs the same, plus `typos`, `zizmor`, and the suite on
-Python 3.9 through 3.14.
+Python 3.11 through 3.14.

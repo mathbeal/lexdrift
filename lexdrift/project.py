@@ -8,8 +8,8 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .collector import Module, collect_source
-from .lexicon import chosen_nouns, split_chosen_words
-from .rules import Finding, load_compounds, load_families, measure
+from .config import load_config
+from .rules import Finding, load_compounds, load_families, measure, split_name
 from .vocabulary import classify
 
 SKIPPED = {
@@ -138,7 +138,11 @@ def findings(project: Project) -> list[Finding]:
     Returns:
         Observations, never faults. See :mod:`lexdrift.drift` for faults.
     """
-    return measure(project.modules, project_roots=project.project_roots)
+    return measure(
+        project.modules,
+        project_roots=project.project_roots,
+        nouns=load_config(project.root),
+    )
 
 
 def glossary(project: Project) -> dict[str, Any]:
@@ -159,17 +163,10 @@ def glossary(project: Project) -> dict[str, Any]:
     compounds = load_compounds()
 
     for definition in result.own:
-        words = split_chosen_words(definition.name)
-        if not words:
-            continue
-        head, tail = words[0], words[1:]
-        if definition.kind == "class":
-            nouns.update(chosen_nouns(words, compounds))
-        elif head in index:
-            verbs[head] += 1
-            nouns.update(chosen_nouns(tail, compounds))
-        else:
-            nouns.update(chosen_nouns(words, compounds))
+        verb, carried = split_name(definition, index, compounds)
+        if verb:
+            verbs[verb] += 1
+        nouns.update(carried)
 
     return {
         "verbs": dict(verbs),
