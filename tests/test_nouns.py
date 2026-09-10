@@ -111,3 +111,50 @@ def test_a_declared_noun_used_once_is_not_drift(tmp_path: Path) -> None:
     source = "def load_user():\n    pass\n\ndef save_widget():\n    pass\n"
     project = project_with(tmp_path, source)
     assert [f for f in compare(project) if f.rule == "D004"] == []
+
+
+PYPROJECT = '[tool.lexdrift.nouns]\nuser = ["user", "account"]\n'
+
+
+def test_the_pyproject_table_is_read(tmp_path: Path) -> None:
+    (tmp_path / "pyproject.toml").write_text(PYPROJECT, encoding="utf-8")
+    assert load_config(str(tmp_path)) == {"user": ["user", "account"]}
+
+
+def test_a_pyproject_without_a_lexdrift_table_declares_nothing(tmp_path: Path) -> None:
+    (tmp_path / "pyproject.toml").write_text('[project]\nname = "x"\n', encoding="utf-8")
+    assert load_config(str(tmp_path)) == {}
+
+
+def test_a_dedicated_file_wins_over_pyproject(tmp_path: Path) -> None:
+    (tmp_path / "pyproject.toml").write_text(PYPROJECT, encoding="utf-8")
+    (tmp_path / "lexdrift.toml").write_text(DECLARED, encoding="utf-8")
+    assert load_config(str(tmp_path)) == {"user": ["user", "account", "customer"]}
+
+
+def test_the_config_is_found_from_a_subdirectory(tmp_path: Path) -> None:
+    (tmp_path / "lexdrift.toml").write_text(DECLARED, encoding="utf-8")
+    package = tmp_path / "src" / "app"
+    package.mkdir(parents=True)
+    assert load_config(str(package)) == {"user": ["user", "account", "customer"]}
+
+
+def test_the_search_stops_at_the_repository_boundary(tmp_path: Path) -> None:
+    (tmp_path / "lexdrift.toml").write_text(DECLARED, encoding="utf-8")
+    repository = tmp_path / "other"
+    (repository / ".git").mkdir(parents=True)
+    package = repository / "app"
+    package.mkdir()
+    assert load_config(str(package)) == {}
+
+
+def test_a_declared_family_applies_from_the_root_of_the_repository(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "lexdrift.toml").write_text(DECLARED, encoding="utf-8")
+    package = tmp_path / "app"
+    package.mkdir()
+    (package / "mod.py").write_text(
+        "def load_user():\n    pass\n\ndef edit_account():\n    pass\n", encoding="utf-8"
+    )
+    assert "L006" in {f.rule for f in findings(inspect(package))}

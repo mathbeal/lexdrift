@@ -177,16 +177,18 @@ Three tables ship with the package, and one is written by you.
 
 `lexdrift/synonyms.json` groups verbs into families. `lexdrift/abbreviations.json` maps abbreviations to the words they stand for. `lexdrift/compounds.json` lists the terms an identifier spells in several pieces, so that `third_party` counts as one noun and not as two. All three are hand-written, readable, and meant to be edited. Families cover English and French, conjugated and infinitive, so that a French codebase is not reported as verbless.
 
-### `lexdrift.toml` — the nouns only you can declare
+### `[tool.lexdrift]` — the nouns only you can declare
 
 Verbs form a closed universal set: `get`, `fetch` and `retrieve` mean the same thing in every repository on earth, which is why their table ships with the tool. **Nouns do not.** `user`, `account` and `customer` are one person in one domain and three different things in another, and no shipped table can know which. So lexdrift ships no opinion about nouns, and a project declares its own:
 
 ```toml
-# lexdrift.toml, at the root of the repository
-[nouns]
+# pyproject.toml, at the root of the repository
+[tool.lexdrift.nouns]
 user = ["user", "account", "customer"]
 order = ["order", "purchase", "transaction"]
 ```
+
+A dedicated `lexdrift.toml` works too, with the table written as plain `[nouns]`, and takes precedence when both exist. The search climbs from the directory being analysed to the root of the repository, so `lexdrift check src/backend` finds the settings declared beside `.git`.
 
 Declared families are then held to the same standard as verbs: `dump` reports a family named several ways (**L006**), and `check` fails on a noun that is new to one (**D004**).
 

@@ -23,7 +23,9 @@ A linter that reads the lexicon of a Python repository. Three commands, three
 contracts:
 
 - `check` returns a verdict on drift — exit 0 or 1
-- noun families are declared per project in `lexdrift.toml` under `[nouns]`; with no file, no noun is ever reported
+- noun families are declared per project under `[tool.lexdrift.nouns]` in
+  `pyproject.toml`, or `[nouns]` in a dedicated `lexdrift.toml` which wins;
+  with neither, no noun is ever reported
 - `dump` measures and never judges — always exit 0; `--most-common`, `--least-common`, `--min-count`, `--max-count` and `--kind` narrow it before rendering, so every format shows the same words
 - `rename` renames what it can prove and lists what it cannot
 
