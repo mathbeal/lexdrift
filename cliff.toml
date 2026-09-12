@@ -1,6 +1,6 @@
-# git-cliff — le CHANGELOG se génère depuis l'historique, il ne s'écrit pas.
-# Le format suit Keep a Changelog et les versions suivent le semver, comme
-# l'annonce l'en-tête du fichier produit.
+# git-cliff — the changelog is generated from the history, not written by hand.
+# A hand-written changelog drifts from what was actually done and nobody
+# notices until a reader trusts it.
 
 [changelog]
 header = """
@@ -32,7 +32,7 @@ footer = ""
 
 [git]
 conventional_commits = true
-# Rien ne se perd : un commit non conventionnel est classé, pas écarté.
+# Nothing is lost: an unconventional commit is grouped, not dropped.
 filter_unconventional = false
 split_commits = false
 protect_breaking_commits = true
@@ -55,6 +55,6 @@ commit_parsers = [
 ]
 
 commit_preprocessors = [
-  # retire le préfixe conventionnel : la phrase se suffit à elle-même
+  # strip the conventional prefix: the sentence stands on its own
   { pattern = '^(feat|fix|docs|perf|refactor|test|build|ci|chore)(\([^)]*\))?!?: *', replace = "" },
 ]
