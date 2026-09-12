@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from lexdrift.project import discover, glossary, inspect
+from lexdrift.project import build_lexicon, discover, inspect
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -39,7 +39,7 @@ def test_inspect_infers_project_roots_from_top_level_packages(tmp_path: Path) ->
     assert "app" in inspect(root).project_roots
 
 
-def test_glossary_counts_only_the_projects_own_verbs(tmp_path: Path) -> None:
+def test_the_lexicon_counts_only_the_projects_own_verbs(tmp_path: Path) -> None:
     root = build(
         tmp_path,
         {
@@ -53,7 +53,7 @@ def test_glossary_counts_only_the_projects_own_verbs(tmp_path: Path) -> None:
             )
         },
     )
-    result = glossary(inspect(root))
+    result = build_lexicon(inspect(root))
     assert result["verbs"]["build"] == 1
     assert "save" not in result["verbs"]
     assert result["imposed"] == 1

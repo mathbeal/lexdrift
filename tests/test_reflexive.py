@@ -11,8 +11,8 @@ from pathlib import Path
 
 from lexdrift.config import load_config
 from lexdrift.drift import compare
-from lexdrift.lexicon import FUNCTION_WORDS
-from lexdrift.project import glossary, inspect
+from lexdrift.project import build_lexicon, inspect
+from lexdrift.split import FUNCTION_WORDS
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "lexdrift"
@@ -23,13 +23,13 @@ def test_lexdrift_has_not_drifted_on_its_own_source() -> None:
 
 
 def test_lexdrift_names_one_verb_per_family() -> None:
-    families = glossary(inspect(SOURCE))["families"]
+    families = build_lexicon(inspect(SOURCE))["families"]
     several = {f: verbs for f, verbs in families.items() if len(verbs) > 1}
     assert several == {}
 
 
-def test_lexdrift_glossary_carries_no_function_word() -> None:
-    nouns = set(glossary(inspect(SOURCE))["nouns"])
+def test_the_lexdrift_lexicon_carries_no_function_word() -> None:
+    nouns = set(build_lexicon(inspect(SOURCE))["nouns"])
     assert nouns & FUNCTION_WORDS == set()
 
 

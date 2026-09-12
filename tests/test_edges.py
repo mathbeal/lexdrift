@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from lexdrift.cli import main
 from lexdrift.collector import collect_source
 from lexdrift.drift import compare
-from lexdrift.project import glossary, inspect
+from lexdrift.project import build_lexicon, inspect
 from lexdrift.rename import rename
 from lexdrift.report import as_json
 
@@ -49,13 +49,13 @@ def test_a_file_that_does_not_parse_is_recorded_as_unreadable(tmp_path: Path) ->
 
 def test_a_class_name_feeds_the_nouns(tmp_path: Path) -> None:
     root = make(tmp_path, {"app/m.py": "class UserAccount:\n    pass\n"})
-    lexicon = glossary(inspect(root))
+    lexicon = build_lexicon(inspect(root))
     assert lexicon["nouns"]["account"] == 1
 
 
 def test_a_name_made_only_of_underscores_is_skipped(tmp_path: Path) -> None:
     root = make(tmp_path, {"app/m.py": "def _():\n    pass\n"})
-    assert glossary(inspect(root))["nouns"] == {}
+    assert build_lexicon(inspect(root))["nouns"] == {}
 
 
 # --- drift -------------------------------------------------------------------
@@ -214,7 +214,7 @@ def test_a_root_level_init_has_no_module_name(tmp_path: Path) -> None:
 
 def test_a_name_led_by_an_unknown_word_feeds_the_nouns(tmp_path: Path) -> None:
     root = make(tmp_path, {"app/m.py": "def zzz_thing():\n    pass\n"})
-    assert glossary(inspect(root))["nouns"]["zzz"] == 1
+    assert build_lexicon(inspect(root))["nouns"]["zzz"] == 1
 
 
 def test_an_unknown_verb_is_ignored_by_the_drift(tmp_path: Path) -> None:
@@ -249,7 +249,7 @@ def test_an_abbreviation_already_in_the_baseline_is_accepted(tmp_path: Path) -> 
     source = "def read_user():\n    pass\n\n\ndef read_usr_file():\n    pass\n"
     root = make(tmp_path, {"app/m.py": source})
     project = inspect(root)
-    baseline = glossary(project)
+    baseline = build_lexicon(project)
     assert not [f for f in compare(project, baseline) if f.rule == "D002"]
 
 

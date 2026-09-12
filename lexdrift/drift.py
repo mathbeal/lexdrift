@@ -16,8 +16,8 @@ from __future__ import annotations
 from collections.abc import Collection, Iterable, Mapping
 from typing import TYPE_CHECKING, Any
 
+from .attribution import classify
 from .config import load_config
-from .lexicon import split_chosen_words
 from .rules import (
     Finding,
     _docstring_disagreement,
@@ -27,7 +27,7 @@ from .rules import (
     load_families,
     split_name,
 )
-from .vocabulary import classify
+from .split import split_chosen_words
 
 if TYPE_CHECKING:
     from .collector import Definition

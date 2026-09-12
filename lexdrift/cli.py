@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING, Any
 from . import __version__
 from .config import ConfigError, load_config
 from .drift import compare
-from .project import Narrowing, filter_lexicon, findings, glossary, inspect
+from .project import Narrowing, build_lexicon, filter_lexicon, findings, inspect
 from .rename import rename
 from .report import as_json, as_sarif, as_text
 from .rules import load_families
@@ -252,7 +252,7 @@ def _dump(project: Project, options: argparse.Namespace) -> int:
         max_count=options.max_count,
         kind=options.kind,
     )
-    lexicon = filter_lexicon(glossary(project), narrowing)
+    lexicon = filter_lexicon(build_lexicon(project), narrowing)
     if options.format == "json":
         print(json.dumps(lexicon, ensure_ascii=False, indent=2, sort_keys=True))
     elif options.format == "tsv":
@@ -268,7 +268,7 @@ def as_tsv(lexicon: dict[str, Any]) -> str:
     """Render the lexicon as one tabulated word per line.
 
     Args:
-        lexicon: The glossary to render.
+        lexicon: The lexicon to render.
 
     Returns:
         Count, word, kind and family, by decreasing frequency.
@@ -286,7 +286,7 @@ def _print_report(lexicon: dict[str, Any], limit: int | None = None) -> None:
     """Print the lexicon in plain words.
 
     Args:
-        lexicon: The glossary to print.
+        lexicon: The lexicon to print.
         limit: How many nouns to show, or None to show every one kept.
     """
     print(f"{lexicon['own']} names chosen, {lexicon['imposed']} imposed")

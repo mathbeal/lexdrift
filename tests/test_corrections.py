@@ -52,18 +52,18 @@ def test_common_verbs_are_known(tmp_path: Path) -> None:
 
 
 def test_a_test_function_contributes_its_own_words(tmp_path: Path) -> None:
-    from lexdrift.project import glossary, inspect
+    from lexdrift.project import build_lexicon, inspect
 
     root = tmp_path / "app"
     root.mkdir()
     (root / "t.py").write_text("def test_fetch_account():\n    pass\n", encoding="utf-8")
-    lexicon = glossary(inspect(tmp_path))
+    lexicon = build_lexicon(inspect(tmp_path))
     assert lexicon["verbs"]["fetch"] == 1
     assert "test" not in lexicon["nouns"]
 
 
 def test_the_test_prefix_never_counts_as_a_verb(tmp_path: Path) -> None:
-    from lexdrift.lexicon import split_chosen_words
+    from lexdrift.split import split_chosen_words
 
     assert split_chosen_words("test_fetch_account") == ["fetch", "account"]
     assert split_chosen_words("testament_parser") == ["testament", "parser"]
@@ -73,15 +73,15 @@ def test_the_test_prefix_never_counts_as_a_verb(tmp_path: Path) -> None:
     assert split_chosen_words("test") == ["test"]
 
 
-def test_the_glossary_says_why_names_were_imposed(tmp_path: Path) -> None:
-    from lexdrift.project import glossary, inspect
+def test_the_lexicon_says_why_names_were_imposed(tmp_path: Path) -> None:
+    from lexdrift.project import build_lexicon, inspect
 
     root = tmp_path / "app"
     root.mkdir()
     (root / "m.py").write_text(
         "class A:\n    def __init__(self):\n        pass\n", encoding="utf-8"
     )
-    reasons = glossary(inspect(tmp_path))["imposed_by_reason"]
+    reasons = build_lexicon(inspect(tmp_path))["imposed_by_reason"]
     assert reasons == {"language special method": 1}
 
 

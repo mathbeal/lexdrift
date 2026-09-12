@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from .lexicon import chosen_nouns, split_chosen_words
+from .split import chosen_nouns, split_chosen_words
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Mapping
@@ -217,7 +217,7 @@ def measure(
     Returns:
         Observations, sorted by module then line.
     """
-    from .vocabulary import classify  # noqa: PLC0415 - avoids an import cycle
+    from .attribution import classify  # noqa: PLC0415 - avoids an import cycle
 
     modules = list(modules)
     classification = classify(modules, project_roots)

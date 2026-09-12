@@ -55,7 +55,7 @@ def split_chosen_words(name: str) -> list[str]:
 
 
 #: Words that glue a name together without naming anything: the ``as`` of
-#: ``as_json``, the ``is`` of ``is_dirty``. A glossary opening on them says
+#: ``as_json``, the ``is`` of ``is_dirty``. A lexicon opening on them says
 #: nothing about the repository.
 FUNCTION_WORDS = frozenset({
     "a",
@@ -82,7 +82,7 @@ FUNCTION_WORDS = frozenset({
 def join_compounds(words: Sequence[str], compounds: Collection[str]) -> list[str]:
     """Join adjacent words that one declared term spells in several pieces.
 
-    ``third`` and ``party`` are one concept. A glossary that lists them
+    ``third`` and ``party`` are one concept. A lexicon that lists them
     apart invents two words the author never used.
 
     Args:

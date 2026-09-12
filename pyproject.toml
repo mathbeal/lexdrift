@@ -72,6 +72,16 @@ dev = [
 [project.scripts]
 lexdrift = "lexdrift.cli:main"
 
+# ---------------------------------------------------------------------------
+# lexdrift, on itself. A verb family is named by the tool; a noun family is
+# named by the project, and nothing about nouns is reported until it is. The
+# two words below once named modules of their own: `glossary` produced what
+# its docstring called a lexicon, and `vocabulary` classified names. Declaring
+# them keeps them from coming back.
+# ---------------------------------------------------------------------------
+[tool.lexdrift.nouns]
+lexicon = ["glossary", "vocabulary"]
+
 [tool.setuptools]
 packages = ["lexdrift"]
 
