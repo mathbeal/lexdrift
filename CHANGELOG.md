@@ -11,6 +11,7 @@ by hand: edit the commits, or the configuration in `cliff.toml`.
 
 ### Changed
 
+- Generate the changelog from the history with git-cliff
 - Show what a good noun table looks like, and what a bad one looks like
 - Make the noun table survive being written by hand
 - Move to pathlib and drop nine ruff exclusions

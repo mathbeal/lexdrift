@@ -223,7 +223,7 @@ def measure(
     classification = classify(modules, project_roots)
     imports = {m.module: m.imports for m in modules}
     verbs = _verb_index(families or load_families())
-    functions = [d for d in classification.own if d.kind in ("function", "method")]
+    functions = [d for d in classification.own if d.kind in {"function", "method"}]
     findings = [
         *_synonyms(functions, verbs),
         *_missing_verb(functions, verbs),

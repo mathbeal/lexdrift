@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import operator
 import os
 from collections import Counter
 from dataclasses import dataclass, field
@@ -252,7 +253,7 @@ def filter_lexicon(
             order = sorted(kept.items(), key=lambda kv: (-kv[1], kv[0]))[:most_common]
             return dict(order)
         if least_common is not None:
-            order = sorted(kept.items(), key=lambda kv: (kv[1], kv[0]))[:least_common]
+            order = sorted(kept.items(), key=operator.itemgetter(1, 0))[:least_common]
             return dict(order)
         return kept
 

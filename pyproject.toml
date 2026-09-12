@@ -53,11 +53,22 @@ version = { attr = "lexdrift.__version__" }
 [tool.setuptools.package-data]
 lexdrift = ["*.json"]
 
+# ---------------------------------------------------------------------------
+# ruff — linter and formatter. Replaces flake8, isort, pyupgrade, pydocstyle,
+# bandit and about thirty plugins in one binary. Everything is selected and
+# each refusal is argued below: a silent exclusion is a decision nobody made.
+# ---------------------------------------------------------------------------
 [tool.ruff]
 target-version = "py311"
+# DOC201/402/501 — returns, yields and raised exceptions left undocumented —
+# are still in preview. They are the half of the docstring contract that D417
+# does not cover.
+preview = true
 line-length = 90
 
 [tool.ruff.lint]
+# ALL means every rule ruff implements, including the security rules of
+# flake8-bandit (S), complexity (C901, PLR09xx) and docstrings (D, DOC).
 select = ["ALL"]
 ignore = [
   "D203",    # conflicts with D211, we keep D211
@@ -65,8 +76,18 @@ ignore = [
   "COM812",  # conflicts with the formatter
   "ISC001",  # conflicts with the formatter
   "CPY001",  # no copyright header: the licence lives in LICENSE
+  # --- preview rules declined, with the reason ------------------------------
+  # RUF105 prefers ruff's own 'ruff: ignore' over '# noqa'. noqa is the
+  # convention every Python tool and every reader already knows; a repository
+  # that argues for a stable vocabulary does not adopt a private dialect.
+  "RUF105",
+  # S404 flags importing subprocess at all. Importing it is not a defect; the
+  # calls are, and S603/S607 review those where they happen.
+  "S404",
 ]
 
+# The Google convention decides which docstring rules apply. D417 is the one
+# that matters: it fails when an argument of the signature is not described.
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
@@ -77,11 +98,17 @@ convention = "google"
 # N802: tests are named after the rule they check (test_L001_...).
 "tests/*" = [
   "S101", "D100", "D101", "D103", "PLR2004", "INP001", "ARG001", "N802",
+  "PLC1901",  # `caplog.text == ""` says what it checks; truthiness does not.
   "RUF012", "PLC0415",
   # tests run git and python with fixed arguments and no external input.
   "S603", "S607",
 ]
 
+# ---------------------------------------------------------------------------
+# mypy — static type checking. strict refuses an untyped definition, an
+# implicit Any and an unchecked call; warn_unreachable refuses code that can
+# never run, which is usually a condition that has become false.
+# ---------------------------------------------------------------------------
 [tool.mypy]
 # tomllib is in the standard library from 3.11, which is what lets lexdrift
 # read its own configuration file without taking a dependency.
@@ -91,9 +118,20 @@ warn_unreachable = true
 files = ["lexdrift"]
 
 [tool.pytest.ini_options]
-addopts = "-q"
+# --strict-markers and --strict-config refuse a typo in a marker or in this
+# section rather than ignoring it. xfail_strict turns an expected failure that
+# passes into a failure: a test fixed by accident must be noticed.
+addopts = "-q --strict-markers --strict-config"
 testpaths = ["tests"]
+xfail_strict = true
+# A warning is a defect that has not happened yet.
+filterwarnings = ["error"]
 
+# ---------------------------------------------------------------------------
+# coverage — branch coverage, not line coverage: a line is not exercised by
+# being reached, it is exercised by being reached both ways. fail_under makes
+# the number a gate rather than an indication.
+# ---------------------------------------------------------------------------
 [tool.coverage.run]
 source = ["lexdrift"]
 branch = true

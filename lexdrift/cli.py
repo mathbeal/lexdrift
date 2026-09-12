@@ -339,7 +339,7 @@ def _print_observations(project: Project) -> None:
     Args:
         project: The repository to observe.
     """
-    watched = [f for f in findings(project) if f.rule in ("L001", "L005")]
+    watched = [f for f in findings(project) if f.rule in {"L001", "L005"}]
     if not watched:
         return
     print("\nobservations")

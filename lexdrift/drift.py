@@ -80,7 +80,7 @@ def compare(project: Project, baseline: Baseline | None = None) -> list[Finding]
         Findings, sorted by module then line.
     """
     own = classify(project.modules, project.project_roots).own
-    functions = [d for d in own if d.kind in ("function", "method")]
+    functions = [d for d in own if d.kind in {"function", "method"}]
     verbs = _verb_index(load_families())
     findings = [
         *_verb_drift(functions, verbs, _established(baseline)),

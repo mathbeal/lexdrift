@@ -44,7 +44,7 @@ DYNAMIC = {"getattr", "setattr", "hasattr", "delattr"}
 
 @dataclass
 class Unresolved:
-    """Une occurrence que l'outil refuse de toucher, et pourquoi."""
+    """An occurrence the tool refuses to touch, and the reason why."""
 
     path: str
     lineno: int
@@ -70,7 +70,12 @@ class Report:
 
 
 def _as_written(node: ast.Attribute) -> str:
-    """Render ``object.attribute`` the way it reads."""
+    """Render ``object.attribute`` the way it reads.
+
+    Returns:
+        The dotted form, with the owner replaced by an ellipsis when it is
+        not a plain name.
+    """
     owner = getattr(node.value, "id", "…")
     return f"{owner}.{node.attr}"
 
@@ -124,9 +129,10 @@ class _Sites(ast.NodeVisitor):
             on_self = isinstance(node.value, ast.Name) and node.value.id == "self"
             if on_self and self._owner and self._owner[-1]:
                 end = node.end_col_offset or 0
-                self.positions.append(
-                    (node.end_lineno or node.lineno, end - len(self.old))
-                )
+                self.positions.append((
+                    node.end_lineno or node.lineno,
+                    end - len(self.old),
+                ))
             else:
                 self.warnings.append(
                     Unresolved(self.path, node.lineno, "attribute", _as_written(node))
@@ -206,26 +212,38 @@ def _edit(
     return "".join(rows), count
 
 
+def _matches_in(path: Path, word: re.Pattern[str]) -> list[Unresolved]:
+    """Read one text file and report every line where the word appears.
+
+    Returns:
+        One entry per matching line; nothing at all when the file cannot be
+        read as UTF-8 text.
+    """
+    try:
+        with path.open(encoding="utf-8") as handle:
+            return [
+                Unresolved(str(path), number, "non-Python", line.strip())
+                for number, line in enumerate(handle, 1)
+                if word.search(line)
+            ]
+    except (UnicodeDecodeError, OSError):
+        return []
+
+
 def _foreign_files(root: str | os.PathLike[str], old: str) -> list[Unresolved]:
-    """Les occurrences hors Python : gabarits, JSON, SQL, migrations."""
+    """Find the occurrences outside Python: templates, JSON, SQL, migrations.
+
+    Returns:
+        One entry per occurrence the rename cannot prove safe.
+    """
     found: list[Unresolved] = []
     word = re.compile(rf"\b{re.escape(old)}\b")
     # Path.walk arrived in 3.12 and the floor is 3.11: os.walk stays.
     for current, directories, files in os.walk(str(root)):
         directories[:] = [d for d in directories if d not in SKIPPED]
         for name in sorted(files):
-            if not name.endswith(TEXT_SUFFIXES):
-                continue
-            path = Path(current) / name
-            try:
-                with path.open(encoding="utf-8") as handle:
-                    for number, line in enumerate(handle, 1):
-                        if word.search(line):
-                            found.append(
-                                Unresolved(str(path), number, "non-Python", line.strip())
-                            )
-            except (UnicodeDecodeError, OSError):
-                continue
+            if name.endswith(TEXT_SUFFIXES):
+                found.extend(_matches_in(Path(current) / name, word))
     return found
 
 

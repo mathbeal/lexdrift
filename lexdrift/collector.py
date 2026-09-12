@@ -204,8 +204,6 @@ def collect_source(source: str, module: str = "", path: str = "") -> Module:
     Returns:
         Everything the module defines, and what it imports.
 
-    Raises:
-        SyntaxError: If the source does not parse.
     """
     visitor = _Visitor(module)
     visitor.result.path = path
