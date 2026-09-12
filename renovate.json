@@ -15,10 +15,11 @@
   ],
   "packageRules": [
     {
-      "description": "This project has no runtime dependencies. Everything Renovate sees is a development tool or a CI action; group them so review stays one pull request.",
+      "description": "This project has no runtime dependencies. Everything Renovate sees is a development tool or a CI action; group them so review stays one pull request. The pre-commit manager is off by default in Renovate, so the pinned revisions would otherwise drift away from the versions in the lockfile and give a different verdict.",
       "matchManagers": [
         "pep621",
-        "github-actions"
+        "github-actions",
+        "pre-commit"
       ],
       "matchUpdateTypes": [
         "minor",
@@ -45,5 +46,8 @@
       "before 6am on monday"
     ],
     "automerge": false
+  },
+  "pre-commit": {
+    "enabled": true
   }
 }

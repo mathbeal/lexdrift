@@ -11,6 +11,9 @@ by hand: edit the commits, or the configuration in `cliff.toml`.
 
 ### Changed
 
+- Publish the pre-commit hook, and run one ruff instead of two
+- Say what each dependency is there for
+- Turn on the preview rules, scan for CVEs, and say what each linter does
 - Generate the changelog from the history with git-cliff
 - Show what a good noun table looks like, and what a bad one looks like
 - Make the noun table survive being written by hand
