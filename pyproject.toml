@@ -46,6 +46,9 @@ dev = [
   "ruff>=0.6",
   # static type checking, strict mode
   "mypy>=1.10",
+  # mutation testing: breaks the source on purpose to find the lines that are
+  # covered but not verified. Coverage says a line ran; this says it is pinned.
+  "mutmut>=3.7",
 ]
 
 # uv installs this group by default, so `uv run pytest` needs no flag. Passing
@@ -61,6 +64,9 @@ dev = [
   "ruff>=0.6",
   # static type checking, strict mode
   "mypy>=1.10",
+  # mutation testing: breaks the source on purpose to find the lines that are
+  # covered but not verified. Coverage says a line ran; this says it is pinned.
+  "mutmut>=3.7",
 ]
 
 [project.scripts]
@@ -165,3 +171,19 @@ omit = ["lexdrift/__main__.py"]
 show_missing = true
 fail_under = 100
 exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
+
+# ---------------------------------------------------------------------------
+# mutmut — mutation testing. Not a gate: a full run relaunches the suite once
+# per mutant and takes minutes, not seconds. It is an audit, run deliberately,
+# and its output is a list of lines where a test is missing.
+# ---------------------------------------------------------------------------
+[tool.mutmut]
+source_paths = ["lexdrift/"]
+# mutmut copies the sources into mutants/ and runs pytest from there. The
+# reflexive tests read README.md and pyproject.toml at the repository root,
+# which does not exist under mutants/ — and they test the repository, not the
+# logic, so they could not kill a mutant anyway.
+pytest_add_cli_args_test_selection = [
+  "tests/",
+  "--ignore=tests/test_reflexive.py",
+]

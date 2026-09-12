@@ -63,3 +63,16 @@ Regenerate with `just changelog` before cutting a release; `just changelog-check
 fails if `CHANGELOG.md` is not what the history produces. CI enforces it on tags
 only: a commit cannot contain its own entry, so on an ordinary push the file is
 always one commit behind.
+
+## Mutation testing
+
+Coverage says a line ran. It does not say the line is verified: a test that
+reaches a branch and asserts nothing still counts. `just mutation` breaks the
+source on purpose — `>` becomes `>=`, a return value becomes `None` — and runs
+the suite against each version. A mutant the suite does not notice is a line
+where a test is missing.
+
+It takes about forty minutes for 1 963 mutants, so it is an audit rather than a
+gate, and it is not in CI. The last full run killed 1 506 and left 454: 100 %
+branch coverage, 77 % mutation score. That gap is the honest measure of the
+suite, and closing it is ordinary work, one missing assertion at a time.

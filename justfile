@@ -55,3 +55,9 @@ changelog-check:
 audit:
     uv export --frozen --no-emit-project --all-groups -o /tmp/lexdrift-req.txt
     uvx pip-audit --strict --disable-pip -r /tmp/lexdrift-req.txt
+
+# Mutation testing: break the source on purpose and see if a test notices.
+# Minutes, not seconds — an audit, not a gate.
+mutation:
+    uv run mutmut run
+    uv run mutmut results

@@ -68,6 +68,9 @@ def test_the_test_prefix_never_counts_as_a_verb(tmp_path: Path) -> None:
     assert split_chosen_words("test_fetch_account") == ["fetch", "account"]
     assert split_chosen_words("testament_parser") == ["testament", "parser"]
     assert split_chosen_words("fetch_account") == ["fetch", "account"]
+    # A convention word alone is the whole name, not a prefix to drop: `test`
+    # names something, and returning [] here would erase it from the lexicon.
+    assert split_chosen_words("test") == ["test"]
 
 
 def test_the_glossary_says_why_names_were_imposed(tmp_path: Path) -> None:

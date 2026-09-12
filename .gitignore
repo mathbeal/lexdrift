@@ -15,3 +15,7 @@ coverage.xml
 htmlcov/
 *.sarif
 .DS_Store
+
+# mutmut copies the sources here to mutate them
+mutants/
+.mutmut-cache
