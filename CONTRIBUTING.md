@@ -38,3 +38,26 @@ that belongs elsewhere.
 Include the smallest source file that triggers it, the command you ran, and
 what you expected instead. A false positive on a real repository is worth more
 than a feature request.
+
+## Commit messages
+
+The changelog is generated from the history by `git-cliff`, so the first line of
+a commit is what readers of the release will see. Prefix it with the kind of
+change, then write the sentence as you would anyway:
+
+```
+feat: let a project declare its own noun families
+fix: keep function words out of the glossary
+docs: show what a good noun table looks like
+refactor: move to pathlib and drop nine ruff exclusions
+test: count a test function as chosen vocabulary
+chore: refresh uv.lock after the version became dynamic
+```
+
+The prefix decides the section of the changelog; the sentence is the entry. A
+commit without a prefix is still kept — it lands under *Changed*.
+
+The body is not in the changelog. Use it, as before, to say why.
+
+Regenerate with `just changelog`; `just changelog-check` fails if `CHANGELOG.md`
+is not what the history produces.

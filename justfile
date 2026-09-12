@@ -41,3 +41,12 @@ build:
     rm -rf dist
     uv build
     uv run --no-project --with twine twine check --strict dist/*
+
+# Regenerate CHANGELOG.md from the commit history.
+changelog:
+    git-cliff -o CHANGELOG.md
+
+# Fail if CHANGELOG.md is not what the history produces.
+changelog-check:
+    git-cliff -o /tmp/cliff-expected.md
+    diff -u CHANGELOG.md /tmp/cliff-expected.md
