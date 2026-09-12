@@ -38,6 +38,13 @@
         "major"
       ],
       "groupName": null
+    },
+    {
+      "description": "The interpreter in .python-version is the floor this project promises, not the newest it supports. Raising it would have development run on 3.14 while requires-python still says >=3.11, and a 3.12 syntax would pass unnoticed until CI. The version matrix in quality.yml is what covers the newer interpreters.",
+      "matchManagers": [
+        "pyenv"
+      ],
+      "enabled": false
     }
   ],
   "lockFileMaintenance": {
