@@ -1,5 +1,9 @@
 [build-system]
-requires = ["setuptools>=77"]
+requires = [
+  # 77 is the first release that reads `license = "MIT"` as a PEP 639 SPDX
+  # expression instead of the deprecated classifier.
+  "setuptools>=77",
+]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -33,13 +37,31 @@ Issues = "https://github.com/mathbeal/lexdrift/issues"
 # Kept for `pip install -e ".[dev]"`. It must stay identical to the
 # dependency-group below, and a test enforces that.
 [project.optional-dependencies]
-dev = ["pytest>=7", "pytest-cov>=4", "ruff>=0.6", "mypy>=1.10"]
+dev = [
+  # runs the suite
+  "pytest>=7",
+  # carries the coverage gate: --cov and fail_under are useless without it
+  "pytest-cov>=4",
+  # lint, format, and the security rules (S) that stand in for bandit
+  "ruff>=0.6",
+  # static type checking, strict mode
+  "mypy>=1.10",
+]
 
 # uv installs this group by default, so `uv run pytest` needs no flag. Passing
 # --all-extras on some commands and not others makes uv re-sync the
 # environment between them, which uninstalls the project mid-run.
 [dependency-groups]
-dev = ["pytest>=7", "pytest-cov>=4", "ruff>=0.6", "mypy>=1.10"]
+dev = [
+  # runs the suite
+  "pytest>=7",
+  # carries the coverage gate: --cov and fail_under are useless without it
+  "pytest-cov>=4",
+  # lint, format, and the security rules (S) that stand in for bandit
+  "ruff>=0.6",
+  # static type checking, strict mode
+  "mypy>=1.10",
+]
 
 [project.scripts]
 lexdrift = "lexdrift.cli:main"
