@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from lexdrift.project import Narrowing, filter_lexicon, glossary, inspect
+from lexdrift.project import Narrowing, build_lexicon, filter_lexicon, inspect
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 def lexicon_of(tmp_path: Path, source: str) -> dict[str, object]:
     (tmp_path / "mod.py").write_text(source, encoding="utf-8")
-    return glossary(inspect(tmp_path))
+    return build_lexicon(inspect(tmp_path))
 
 
 def test_a_function_word_is_not_counted_as_a_noun(tmp_path: Path) -> None:

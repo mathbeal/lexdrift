@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from lexdrift.attribution import classify
 from lexdrift.collector import collect_source
-from lexdrift.vocabulary import classify
 
 SOURCE = """
 from django.db import models

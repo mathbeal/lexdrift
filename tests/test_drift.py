@@ -22,9 +22,9 @@ GET_AND_FETCH = "def get_user():\n    pass\n\ndef fetch_account():\n    pass\n"
 
 
 def baseline_of(source: object) -> None:
-    from lexdrift.project import glossary
+    from lexdrift.project import build_lexicon
 
-    return glossary(project_of(source))
+    return build_lexicon(project_of(source))
 
 
 def test_without_a_baseline_every_synonym_is_reported() -> None:

@@ -9,10 +9,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from .attribution import classify
 from .collector import Module, collect_source
 from .config import load_config
 from .rules import Finding, load_compounds, load_families, measure, split_name
-from .vocabulary import classify
 
 SKIPPED = {
     ".git",
@@ -146,7 +146,7 @@ def findings(project: Project) -> list[Finding]:
     )
 
 
-def glossary(project: Project) -> dict[str, Any]:
+def build_lexicon(project: Project) -> dict[str, Any]:
     """Build the lexicon of a project.
 
     Args:
@@ -231,7 +231,7 @@ def filter_lexicon(
     that escaped. Corpus totals are never narrowed — they describe the whole.
 
     Args:
-        lexicon: The glossary to narrow.
+        lexicon: The lexicon to narrow.
         narrowing: What to keep. Defaults to keeping everything.
 
     Returns:

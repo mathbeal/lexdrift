@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from lexdrift.lexicon import split_identifier
+from lexdrift.split import split_identifier
 
 
 def test_splits_snake_case() -> None:
