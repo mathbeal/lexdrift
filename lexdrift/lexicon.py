@@ -57,28 +57,26 @@ def split_chosen_words(name: str) -> list[str]:
 #: Words that glue a name together without naming anything: the ``as`` of
 #: ``as_json``, the ``is`` of ``is_dirty``. A glossary opening on them says
 #: nothing about the repository.
-FUNCTION_WORDS = frozenset(
-    {
-        "a",
-        "an",
-        "and",
-        "as",
-        "at",
-        "by",
-        "for",
-        "from",
-        "in",
-        "into",
-        "is",
-        "not",
-        "of",
-        "on",
-        "or",
-        "the",
-        "to",
-        "with",
-    }
-)
+FUNCTION_WORDS = frozenset({
+    "a",
+    "an",
+    "and",
+    "as",
+    "at",
+    "by",
+    "for",
+    "from",
+    "in",
+    "into",
+    "is",
+    "not",
+    "of",
+    "on",
+    "or",
+    "the",
+    "to",
+    "with",
+})
 
 
 def join_compounds(words: Sequence[str], compounds: Collection[str]) -> list[str]:

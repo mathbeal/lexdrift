@@ -50,3 +50,8 @@ changelog:
 changelog-check:
     git-cliff -o /tmp/cliff-expected.md
     diff -u CHANGELOG.md /tmp/cliff-expected.md
+
+# Known vulnerabilities in the locked dependencies (PyPA advisory database).
+audit:
+    uv export --frozen --no-emit-project --all-groups -o /tmp/lexdrift-req.txt
+    uvx pip-audit --strict --disable-pip -r /tmp/lexdrift-req.txt
