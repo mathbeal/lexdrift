@@ -158,9 +158,13 @@ def test_dump_kind_nouns_prints_no_family(capsys: pytest.CaptureFixture[str]) ->
 
 
 def test_dump_says_how_to_declare_noun_families(
-    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    main(["dump", "lexdrift"])
+    # A project of its own, because lexdrift now declares its families and
+    # would not print the hint: a test that reads the repository it lives in
+    # asserts on today's repository, not on the behaviour.
+    (tmp_path / "mod.py").write_text("def load_user():\n    pass\n", encoding="utf-8")
+    main(["dump", str(tmp_path)])
     assert "[tool.lexdrift.nouns]" in capsys.readouterr().out
 
 
