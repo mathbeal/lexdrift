@@ -1,0 +1,18 @@
+# Lets any repository adopt lexdrift in three lines of .pre-commit-config.yaml:
+#
+#   - repo: https://github.com/mathbeal/lexdrift
+#     rev: v0.1.0
+#     hooks:
+#       - id: lexdrift
+#
+# pass_filenames is false on purpose: drift is a property of the lexicon as a
+# whole. Handed one file at a time, the tool cannot know that "fetch" is new
+# for an idea already named "get" somewhere else.
+- id: lexdrift
+  name: lexdrift
+  description: Report drift in the lexicon of a Python repository.
+  entry: lexdrift check
+  language: python
+  types: [python]
+  pass_filenames: false
+  require_serial: true

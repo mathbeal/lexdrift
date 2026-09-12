@@ -10,12 +10,23 @@ repos:
       - id: mixed-line-ending
       - id: trailing-whitespace
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.4
+  # ruff comes from the lockfile, not from a separately pinned mirror. Two
+  # ruffs give two verdicts: the mirror pinned at v0.14.4 did not know RUF105
+  # and refused to parse a configuration the locked 0.16.6 accepts.
+  - repo: local
     hooks:
       - id: ruff-check
-        args: [--fix]
+        name: ruff check
+        entry: uv run ruff check --fix
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
       - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
 
   - repo: https://github.com/crate-ci/typos
     rev: v1.28.4
@@ -26,3 +37,17 @@ repos:
     rev: v1.0.1
     hooks:
       - id: zizmor
+
+  # The tool holds itself to what it argues for. Local, because the hook it
+  # publishes points at a released tag and this repository is the source.
+  - repo: local
+    hooks:
+      - id: lexdrift
+        name: lexdrift
+        # The same scope as the CI job: drift is a property of the lexicon
+        # that is read, so widening the scope changes the verdict. Package
+        # only, as in quality.yml.
+        entry: uv run lexdrift check lexdrift
+        language: system
+        types: [python]
+        pass_filenames: false

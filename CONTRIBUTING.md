@@ -59,5 +59,7 @@ commit without a prefix is still kept — it lands under *Changed*.
 
 The body is not in the changelog. Use it, as before, to say why.
 
-Regenerate with `just changelog`; `just changelog-check` fails if `CHANGELOG.md`
-is not what the history produces.
+Regenerate with `just changelog` before cutting a release; `just changelog-check`
+fails if `CHANGELOG.md` is not what the history produces. CI enforces it on tags
+only: a commit cannot contain its own entry, so on an ordinary push the file is
+always one commit behind.

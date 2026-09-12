@@ -51,10 +51,8 @@ commit_parsers = [
   { message = "^(build|ci|chore)", group = "Internal" },
   { message = "^revert",          group = "Reverted" },
   { message = "^release",         skip = true },
+  # A merge commit records how a branch landed, not what changed. The commits
+  # it brings in are already listed on their own.
+  { message = "^Merge (pull request|branch|remote)", skip = true },
   { message = ".*",               group = "Changed" },
-]
-
-commit_preprocessors = [
-  # strip the conventional prefix: the sentence stands on its own
-  { pattern = '^(feat|fix|docs|perf|refactor|test|build|ci|chore)(\([^)]*\))?!?: *', replace = "" },
 ]

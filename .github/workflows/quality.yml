@@ -58,6 +58,26 @@ jobs:
       - run: uv export --frozen --no-emit-project --all-groups -o requirements.txt
       - run: uvx pip-audit --strict --disable-pip -r requirements.txt
 
+  changelog:
+    name: changelog matches the history
+    # Only on a tag. A commit cannot contain its own changelog entry, so on an
+    # ordinary push the file is always one commit behind and the check would
+    # force an --amend on every commit. What must be true is narrower: the
+    # changelog of a released version is exactly that version's history.
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # git-cliff reads the whole history, not the default shallow clone.
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+      # A generated changelog only stays honest if something fails when it is
+      # not what the history produces.
+      - run: uvx git-cliff -o expected.md
+      - run: diff -u CHANGELOG.md expected.md
+
   types:
     name: mypy --strict
     runs-on: ubuntu-latest
