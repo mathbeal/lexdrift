@@ -5,6 +5,7 @@
     ":semanticCommitsDisabled",
     "helpers:pinGitHubActionDigests"
   ],
+  "dependencyDashboard": false,
   "timezone": "Europe/Paris",
   "schedule": [
     "before 6am on monday"
