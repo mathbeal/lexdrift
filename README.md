@@ -1,7 +1,7 @@
 # lexdrift
 
 [![quality](https://github.com/mathbeal/lexdrift/actions/workflows/quality.yml/badge.svg)](https://github.com/mathbeal/lexdrift/actions/workflows/quality.yml)
-[![python](https://img.shields.io/badge/python-3.11%20%E2%80%93%203.14-blue)](https://github.com/mathbeal/lexdrift)
+[![python](https://img.shields.io/badge/python-3.11%20%E2%80%93%203.15-blue)](https://github.com/mathbeal/lexdrift)
 [![coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](https://github.com/mathbeal/lexdrift)
 [![licence](https://img.shields.io/badge/licence-MIT-blue)](https://github.com/mathbeal/lexdrift/blob/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/lexdrift)](https://pypi.org/project/lexdrift/)
@@ -13,7 +13,7 @@
 
 Read the lexicon of a Python repository — verbs, nouns, synonyms — setting aside the vocabulary imposed by third-party libraries.
 
-Zero runtime dependencies. Python 3.11 to 3.14.
+Zero runtime dependencies. Python 3.11 to 3.15.
 
 ## What it does
 
@@ -84,7 +84,7 @@ cd lexdrift
 uv sync            # or: pip install -e .
 ```
 
-The test suite, `mypy --strict` and `ruff` run on CPython 3.11, 3.12, 3.13 and 3.14 in CI.
+The test suite, `mypy --strict` and `ruff` run on CPython 3.11, 3.12, 3.13, 3.14 and 3.15 in CI.
 
 ## Commands
 
@@ -343,7 +343,7 @@ To run the suite against another interpreter, uv fetches it if needed:
 
 ```bash
 uv run --python 3.11 pytest
-uv run --python 3.14 pytest
+uv run --python 3.15 pytest
 ```
 
 Without uv, `pip install -e ".[dev]"` works too.
