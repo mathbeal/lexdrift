@@ -66,4 +66,4 @@ uv run lexdrift check lexdrift
 ```
 
 All six must pass. CI runs the same, plus `typos`, `zizmor`, and the suite on
-Python 3.11 through 3.14.
+Python 3.11 through 3.15.
