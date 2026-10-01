@@ -7,6 +7,10 @@ repos:
       - id: check-toml
       - id: check-yaml
       - id: end-of-file-fixer
+        # git-cliff ends CHANGELOG.md with blank lines, and the changelog gate
+        # diffs the file against its output on every tag. Trimming them here
+        # would fail the first release that follows.
+        exclude: ^CHANGELOG\.md$
       - id: mixed-line-ending
       - id: trailing-whitespace
 
