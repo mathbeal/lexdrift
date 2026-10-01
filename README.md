@@ -4,6 +4,12 @@
 [![python](https://img.shields.io/badge/python-3.11%20%E2%80%93%203.14-blue)](https://github.com/mathbeal/lexdrift)
 [![coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](https://github.com/mathbeal/lexdrift)
 [![licence](https://img.shields.io/badge/licence-MIT-blue)](https://github.com/mathbeal/lexdrift/blob/main/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/lexdrift)](https://pypi.org/project/lexdrift/)
+[![last commit](https://img.shields.io/github/last-commit/mathbeal/lexdrift)](https://github.com/mathbeal/lexdrift/commits/main)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![mypy strict](https://img.shields.io/badge/mypy-strict-blue)](https://mypy.readthedocs.io/en/stable/command_line.html#cmdoption-mypy-strict)
+[![dependencies](https://img.shields.io/badge/runtime%20dependencies-0-brightgreen)](https://github.com/mathbeal/lexdrift/blob/main/pyproject.toml)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/mathbeal/lexdrift/blob/main/.pre-commit-config.yaml)
 
 Read the lexicon of a Python repository — verbs, nouns, synonyms — setting aside the vocabulary imposed by third-party libraries.
 
