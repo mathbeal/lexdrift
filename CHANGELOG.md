@@ -16,6 +16,8 @@ by hand: edit the commits, or the configuration in `cliff.toml`.
 
 ### Changed
 
+- Lock file maintenance (#16)
+- Update pre-commit hook pre-commit/pre-commit-hooks to v6 (#15)
 - Update github/codeql-action action to v4
 - Update development tooling
 
